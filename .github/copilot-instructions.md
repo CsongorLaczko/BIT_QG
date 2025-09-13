@@ -13,11 +13,25 @@ BIT_QG is a scientific computing project focused on quantum graphs and numerical
 - **Main Executables**: `measure_nn.cpp` (performance benchmarking), `mf_quantum_graph.cpp` (core implementation)
 - **Dependencies**: Pure Eigen (no libtorch in C++ code despite `libtorch/` directory presence)
 
-### Python Port Architecture (Target)
-- **Core Data Structures**: QGEdge (quantum graph edges with function pointers → callable functions)
-- **Linear Algebra**: SciPy sparse matrices, BiCGSTAB/GMRES solvers, NumPy arrays
-- **Preconditioners**: Custom preconditioner classes compatible with SciPy linear solvers
-- **Future Integration**: PyTorch tensors for neural network extensions (GPU-ready)
+### Python Port Structure (Current)
+```
+python/                    # ISOLATED Python port directory
+├── bit_qg/                # Main Python package
+│   ├── core/             # ✅ COMPLETE: QGEdge, MFQuantumGraph classes
+│   ├── preconditioners/ # TODO: Custom solver preconditioners  
+│   ├── benchmarks/       # TODO: Performance measurement utilities
+│   └── utils/            # TODO: Graph generation, I/O utilities
+├── tests/                # ✅ COMPLETE: Unit test structure
+├── pyproject.toml        # ✅ COMPLETE: uv + ruff configuration
+└── README.md             # ✅ COMPLETE: Development setup guide
+```
+
+### Port Progress Status
+- ✅ **Core Data Structures**: QGEdge (with callable functions), MFQuantumGraph (full finite element implementation)
+- ⏳ **Numerical Algorithms**: Need to port custom preconditioners to SciPy-compatible classes
+- ❌ **Graph Utilities**: Need to enhance existing graph generation scripts
+- ❌ **Benchmarking**: Need to port `measure_nn.cpp` timing functionality
+- ❌ **Integration Tests**: Need validation against C++ reference implementations
 
 ## Critical Porting Patterns & Mappings
 
@@ -43,12 +57,16 @@ cmake --build build
 .\build\measure_nn.exe
 ```
 
-### Python Port (Target)
+### Python Port Development (Current)
 ```bash
-pip install -r requirements.txt
-python -m pytest tests/
-python -m bit_qg.benchmarks.measure_nn
+cd python/                    # Work in isolated Python directory
+uv sync --dev                 # Install dependencies with uv
+uv run pytest                 # Run tests
+uv run ruff check .           # Lint with ruff
+uv run ruff format .          # Format with ruff
 ```
+
+**CRITICAL**: Always work in `python/` directory, never mix with C++ root directory structure!
 
 ## Testing & Validation Strategy
 - **Numerical Accuracy**: Compare Python results with C++ reference implementations using `numpy.allclose()`
@@ -80,12 +98,19 @@ python -m bit_qg.benchmarks.measure_nn
 - **Scripts**: Python scripts are used for automation and data generation.
 - **Port Package Structure**: 
   ```
-  bit_qg/
-    core/          # QGEdge, MFQuantumGraph classes
-    preconditioners/ # Custom solver preconditioners  
-    benchmarks/    # Performance measurement utilities
-    utils/         # Graph generation, I/O utilities
+  python/bit_qg/          # CLEAN structure - no src/ subdirectory!
+    core/                 # QGEdge, MFQuantumGraph classes
+    preconditioners/      # Custom solver preconditioners  
+    benchmarks/           # Performance measurement utilities
+    utils/                # Graph generation, I/O utilities
   ```
+
+## Critical Implementation Notes
+- **Eigen EigenBase Pattern**: C++ uses custom matrix-free operators; port to scipy.sparse.linalg.LinearOperator
+- **Template Specialization**: C++ preconditioner templates → Python ABC with concrete implementations
+- **Memory Layout**: Eigen column-major → ensure NumPy C/F order compatibility
+- **Solver Tolerance**: Maintain same convergence criteria across C++/Python versions
+- **NO DUPLICATE STRUCTURES**: Keep Python port completely isolated in `python/` directory
 
 ## Integration Points
 - **libtorch**: C++ code links against libraries in `libtorch/`.
