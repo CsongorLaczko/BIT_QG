@@ -11,7 +11,7 @@ help:
 	@echo "  test-fast     Run tests without benchmarks"
 	@echo "  lint          Run linting (ruff check)"
 	@echo "  format        Format code (ruff format)"
-	@echo "  type-check    Run type checking (mypy)"
+	@echo "  type-check    Run type checking (ty)"
 	@echo "  clean         Clean build artifacts"
 	@echo "  build         Build package"
 
@@ -34,7 +34,7 @@ format:
 	uv run ruff format .
 
 type-check:
-	uv run mypy bit_qg/
+	uv run ty check bit_qg/ --ignore unknown-argument
 
 clean:
 	rm -rf build/

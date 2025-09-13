@@ -49,6 +49,9 @@ uv run pytest tests/benchmarks/ --benchmark-only
 uv run ruff check .
 uv run ruff format .
 
+# Type checking with ty (Astral's fast type checker)
+uv run ty check bit_qg/ --ignore unknown-argument
+
 # Type checking
 uv run mypy bit_qg/
 
