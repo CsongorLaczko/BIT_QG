@@ -10,8 +10,16 @@ __version__ = "0.1.0"
 __author__ = "BIT_QG Team"
 
 from .core import MFQuantumGraph, QGEdge
+from .preconditioners import (
+    DegreePreconditioner,
+    PolynomialPreconditioner,
+    PreconditionerBase,
+)
 
 __all__ = [
     "QGEdge",
     "MFQuantumGraph",
+    "PreconditionerBase",
+    "DegreePreconditioner",
+    "PolynomialPreconditioner",
 ]

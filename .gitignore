@@ -43,3 +43,4 @@ libtorch
 pinn
 models
 archive
+__pycache__/

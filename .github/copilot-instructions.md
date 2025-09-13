@@ -18,10 +18,10 @@ BIT_QG is a scientific computing project focused on quantum graphs and numerical
 python/                    # ISOLATED Python port directory
 ├── bit_qg/                # Main Python package
 │   ├── core/             # ✅ COMPLETE: QGEdge, MFQuantumGraph classes (100% tested)
-│   ├── preconditioners/ # ⏳ TODO: Custom solver preconditioners  
+│   ├── preconditioners/ # ✅ COMPLETE: DegreePreconditioner, PolynomialPreconditioner (98% tested)
 │   ├── benchmarks/       # ⏳ TODO: Performance measurement utilities
 │   └── utils/            # ⏳ TODO: Graph generation, I/O utilities
-├── tests/                # ✅ COMPLETE: Comprehensive unit tests (100% coverage)
+├── tests/                # ✅ COMPLETE: Comprehensive unit tests (24/24 passing, 98% coverage)
 ├── pyproject.toml        # ✅ COMPLETE: Modern uv + ruff configuration
 └── README.md             # ✅ COMPLETE: Development setup guide
 ```
@@ -29,8 +29,8 @@ python/                    # ISOLATED Python port directory
 ### Port Progress Status (Updated: September 13, 2025)
 - ✅ **Core Data Structures**: QGEdge (with callable functions), MFQuantumGraph (full finite element implementation) - **100% test coverage**
 - ✅ **Development Environment**: Modern Python tooling (uv, ruff), clean pyproject.toml, no linting issues
-- ✅ **Code Quality**: All tests passing (9/9), 100% code coverage, SparseEfficiencyWarnings resolved
-- ⏳ **Numerical Algorithms**: Need to port custom preconditioners to SciPy-compatible classes
+- ✅ **Code Quality**: All tests passing (24/24), 98% code coverage, SparseEfficiencyWarnings resolved
+- ✅ **Preconditioners**: DegreePreconditioner & PolynomialPreconditioner with SciPy LinearOperator compatibility - **98% test coverage**
 - ❌ **Graph Utilities**: Need to enhance existing graph generation scripts
 - ❌ **Benchmarking**: Need to port `measure_nn.cpp` timing functionality
 - ❌ **Integration Tests**: Need validation against C++ reference implementations
@@ -49,6 +49,9 @@ python/                    # ISOLATED Python port directory
 - **Finite Element Assembly**: Edge-based discretization with interior/boundary separation (AII, AIG, AGG matrices)
 - **Schur Complement**: `AGG*rhs - AIG.T @ solver.solve(AIG @ rhs)` pattern in solve() method
 - **Custom Preconditioners**: Degree-based, polynomial, and domain decomposition methods
+- **Preconditioner Interface**: All preconditioners inherit from PreconditionerBase and support SciPy LinearOperator
+- **Degree Preconditioner**: Simple diagonal preconditioner using inverse vertex weights
+- **Polynomial Preconditioner**: Advanced preconditioner using Schur complement diagonal entries
 
 ## Development Workflows
 
@@ -63,7 +66,7 @@ cmake --build build
 ```bash
 cd python/                    # Work in isolated Python directory
 uv sync --dev                 # Install dependencies with uv
-uv run pytest                 # Run tests (9/9 passing, 100% coverage)
+uv run pytest                 # Run tests (24/24 passing, 98% coverage)
 uv run ruff check .           # Lint with ruff (all checks pass)
 uv run ruff format .          # Format with ruff
 ```
@@ -81,12 +84,12 @@ uv run ruff format .          # Format with ruff
 - **Quality Assurance**: All code passes ruff linting, pytest runs clean without warnings
 
 ## Port Progress & Implementation Order
-1. **Core Data Structures**: QGEdge class with callable functions
-2. **Matrix Assembly**: Finite element discretization logic
-3. **Preconditioners**: Custom solver preconditioners
-4. **Benchmarking**: Performance measurement utilities
-5. **Graph Generation**: Enhanced Python graph utilities
-6. **Neural Network Integration**: PyTorch tensor compatibility
+1. **Core Data Structures**: QGEdge class with callable functions ✅
+2. **Matrix Assembly**: Finite element discretization logic ✅
+3. **Preconditioners**: Custom solver preconditioners ✅
+4. **Benchmarking**: Performance measurement utilities ⏳
+5. **Graph Generation**: Enhanced Python graph utilities ⏳
+6. **Neural Network Integration**: PyTorch tensor compatibility ⏳
 
 ## Critical Implementation Notes
 - **Eigen EigenBase Pattern**: C++ uses custom matrix-free operators; port to scipy.sparse.linalg.LinearOperator
