@@ -156,7 +156,8 @@ class MFQuantumGraph:
 
         # Factor AII matrix for Schur complement solves
         from scipy.sparse.linalg import splu
-        self.solver = splu(self.AII)
+        # Convert to CSC format to avoid efficiency warning
+        self.solver = splu(self.AII.tocsc())
 
         # Pre-compute Schur complement right-hand side
         self.bG -= self.AIG.T @ self.solver.solve(self.bI)

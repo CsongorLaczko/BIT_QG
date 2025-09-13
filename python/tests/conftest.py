@@ -2,16 +2,17 @@
 Pytest configuration and fixtures for BIT_QG tests.
 """
 
-import pytest
+from collections.abc import Callable
+
 import numpy as np
-from typing import Callable, List, Tuple
+import pytest
 
 
 @pytest.fixture
-def simple_graph_data() -> Tuple[int, List[Tuple[int, int]]]:
+def simple_graph_data() -> tuple[int, list[tuple[int, int]]]:
     """
     Provides a simple test graph with 3 vertices and 2 edges.
-    
+
     Returns:
         (vertices, edges) where edges are (out, in) tuples
     """
@@ -21,22 +22,22 @@ def simple_graph_data() -> Tuple[int, List[Tuple[int, int]]]:
 
 
 @pytest.fixture
-def test_functions() -> Tuple[Callable[[float], float], ...]:
+def test_functions() -> tuple[Callable[[float], float], ...]:
     """
     Provides simple test functions for quantum graph edges.
-    
+
     Returns:
         (c_func, v_func, f_func) - coefficient, potential, and force functions
     """
     def c_func(x: float) -> float:
         return 1.0  # constant coefficient
-    
+
     def v_func(x: float) -> float:
         return x * x  # quadratic potential
-    
+
     def f_func(x: float) -> float:
         return np.sin(np.pi * x)  # sine force
-    
+
     return c_func, v_func, f_func
 
 

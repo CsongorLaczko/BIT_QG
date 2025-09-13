@@ -47,6 +47,40 @@ class TestQGEdge:
         assert edge1 == edge2
         assert edge1 != edge3
 
+    def test_qgedge_equality_with_non_edge(self):
+        """Test QGEdge equality with non-QGEdge objects."""
+        def dummy_func(x: float) -> float:
+            return 0.0
+
+        edge = QGEdge(out=0, in_=1, c=dummy_func, v=dummy_func, f=dummy_func)
+
+        # Should return NotImplemented when comparing with non-QGEdge
+        assert edge.__eq__("not an edge") == NotImplemented
+        assert edge.__eq__(42) == NotImplemented
+        assert edge.__eq__(None) == NotImplemented
+
+    def test_qgedge_hash(self):
+        """Test QGEdge hashing for use in sets and dictionaries."""
+        def dummy_func(x: float) -> float:
+            return 0.0
+
+        edge1 = QGEdge(out=0, in_=1, c=dummy_func, v=dummy_func, f=dummy_func)
+        edge2 = QGEdge(out=0, in_=1, c=dummy_func, v=dummy_func, f=dummy_func)
+        edge3 = QGEdge(out=1, in_=0, c=dummy_func, v=dummy_func, f=dummy_func)
+
+        # Same edges should have same hash
+        assert hash(edge1) == hash(edge2)
+        # Different edges should have different hash (very likely)
+        assert hash(edge1) != hash(edge3)
+
+        # Should be usable in sets and dictionaries
+        edge_set = {edge1, edge2, edge3}
+        assert len(edge_set) == 2  # edge1 and edge2 are equal, so only 2 unique
+
+        edge_dict = {edge1: "value1", edge3: "value3"}
+        assert len(edge_dict) == 2
+        assert edge_dict[edge2] == "value1"  # edge2 == edge1, so same key
+
     def test_qgedge_repr(self):
         """Test QGEdge string representation."""
         def dummy_func(x: float) -> float:
