@@ -35,3 +35,11 @@ graphs/*txt
 *.exe
 *.out
 *.app
+
+# Other
+.venv
+.vscode
+libtorch
+pinn
+models
+archive
