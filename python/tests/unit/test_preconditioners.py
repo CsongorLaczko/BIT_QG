@@ -9,6 +9,7 @@ from scipy.sparse.linalg import LinearOperator
 from bit_qg.core import MFQuantumGraph, QGEdge
 from bit_qg.preconditioners import (
     DegreePreconditioner,
+    NeumannNeumannPreconditioner,
     PolynomialPreconditioner,
     PreconditionerBase,
 )
@@ -420,6 +421,145 @@ class TestPolynomialPreconditioner:
         assert "PolynomialPreconditioner" in repr_str
         assert "size=2" in repr_str
         assert "initialized=True" in repr_str
+
+
+class TestNeumannNeumannPreconditioner:
+    """Test the Neumann-Neumann domain decomposition preconditioner."""
+
+    def test_neumann_neumann_preconditioner_creation(self):
+        """Test that NeumannNeumannPreconditioner can be created."""
+        precond = NeumannNeumannPreconditioner()
+        assert not precond.is_initialized
+        assert precond.size == 0
+
+    def test_neumann_neumann_preconditioner_compute(self):
+        """Test NeumannNeumann preconditioner computation."""
+        # Create test quantum graph
+        def c_func(x: float) -> float:
+            return 1.0
+
+        def v_func(x: float) -> float:
+            return 0.0
+
+        def f_func(x: float) -> float:
+            return 1.0
+
+        edge = QGEdge(out=0, in_=1, c=c_func, v=v_func, f=f_func)
+        qg = MFQuantumGraph(N=5, vertices=2, edges=[edge])
+
+        # Create and compute preconditioner
+        precond = NeumannNeumannPreconditioner()
+        precond.compute(qg)
+
+        # Verify initialization
+        assert precond.is_initialized
+        assert precond.size == 2  # 2 vertices
+        assert len(precond.neumann_solvers) == 1  # 1 edge
+        assert len(precond.vertex_weights) == 2
+        assert precond.N == 5
+
+    def test_neumann_neumann_preconditioner_solve(self):
+        """Test NeumannNeumann preconditioner solve operation."""
+        # Create test system
+        def c_func(x: float) -> float:
+            return 1.0
+
+        def v_func(x: float) -> float:
+            return 0.0
+
+        def f_func(x: float) -> float:
+            return 1.0
+
+        edge = QGEdge(out=0, in_=1, c=c_func, v=v_func, f=f_func)
+        qg = MFQuantumGraph(N=5, vertices=2, edges=[edge])
+
+        # Create and compute preconditioner
+        precond = NeumannNeumannPreconditioner()
+        precond.compute(qg)
+
+        # Test solve
+        rhs = np.array([1.0, 2.0])
+        result = precond.solve(rhs)
+
+        # Verify result properties
+        assert isinstance(result, np.ndarray)
+        assert result.shape == (2,)
+        assert np.all(np.isfinite(result))
+
+    def test_neumann_neumann_preconditioner_linear_operator(self):
+        """Test NeumannNeumann preconditioner LinearOperator interface."""
+        # Create test system
+        def c_func(x: float) -> float:
+            return 1.0
+
+        def v_func(x: float) -> float:
+            return 0.0
+
+        def f_func(x: float) -> float:
+            return 1.0
+
+        edge = QGEdge(out=0, in_=1, c=c_func, v=v_func, f=f_func)
+        qg = MFQuantumGraph(N=5, vertices=2, edges=[edge])
+
+        # Create and compute preconditioner
+        precond = NeumannNeumannPreconditioner()
+        precond.compute(qg)
+
+        # Test LinearOperator interface
+        linop = precond.as_linear_operator()
+        assert linop.shape == (2, 2)
+        assert linop.dtype == np.float64
+
+        # Test matrix-vector multiplication
+        rhs = np.array([1.0, 2.0])
+        result = linop @ rhs
+        direct_result = precond.solve(rhs)
+        np.testing.assert_array_almost_equal(result, direct_result)
+
+    def test_neumann_neumann_preconditioner_errors(self):
+        """Test error conditions for NeumannNeumann preconditioner."""
+        precond = NeumannNeumannPreconditioner()
+
+        # Test solving before computing
+        with pytest.raises(RuntimeError, match="must be computed before solving"):
+            precond.solve(np.array([1.0, 2.0]))
+
+        # Test compute with malformed quantum graph
+        class MockIncompleteQuantumGraph:
+            def __init__(self):
+                pass  # Missing required attributes
+
+        mock_qg = MockIncompleteQuantumGraph()
+        with pytest.raises(
+            ValueError, match="Quantum graph must have edges and vertex_weights"
+        ):
+            precond.compute(mock_qg)
+
+    def test_neumann_neumann_preconditioner_repr(self):
+        """Test string representation of NeumannNeumann preconditioner."""
+        precond = NeumannNeumannPreconditioner()
+        repr_str = repr(precond)
+        assert "NeumannNeumannPreconditioner" in repr_str
+        assert "uninitialized" in repr_str
+
+        # Test after initialization
+        def c_func(x: float) -> float:
+            return 1.0
+
+        def v_func(x: float) -> float:
+            return 0.0
+
+        def f_func(x: float) -> float:
+            return 1.0
+
+        edge = QGEdge(out=0, in_=1, c=c_func, v=v_func, f=f_func)
+        qg = MFQuantumGraph(N=5, vertices=2, edges=[edge])
+        precond.compute(qg)
+
+        repr_str = repr(precond)
+        assert "initialized" in repr_str
+        assert "size=2" in repr_str
+        assert "edges=1" in repr_str
 
 
 class TestPreconditionerComparison:
