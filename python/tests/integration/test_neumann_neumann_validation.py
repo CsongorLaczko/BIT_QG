@@ -6,7 +6,6 @@ correctness of the Neumann-Neumann preconditioner implementation.
 """
 
 import numpy as np
-import pytest
 
 from bit_qg.core import MFQuantumGraph, QGEdge
 from bit_qg.preconditioners import NeumannNeumannPreconditioner

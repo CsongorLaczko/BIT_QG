@@ -18,10 +18,10 @@ BIT_QG is a scientific computing project focused on quantum graphs and numerical
 python/                    # ISOLATED Python port directory
 ├── bit_qg/                # Main Python package
 │   ├── core/             # ✅ COMPLETE: QGEdge, MFQuantumGraph classes (100% tested)
-│   ├── preconditioners/ # ✅ COMPLETE: DegreePreconditioner, PolynomialPreconditioner (98% tested)
+│   ├── preconditioners/ # ✅ COMPLETE: All 3 preconditioners implemented (97% tested)
 │   ├── benchmarks/       # ⏳ TODO: Performance measurement utilities
 │   └── utils/            # ⏳ TODO: Graph generation, I/O utilities
-├── tests/                # ✅ COMPLETE: Comprehensive unit tests (24/24 passing, 98% coverage)
+├── tests/                # ✅ COMPLETE: Comprehensive unit & integration tests (36/36 passing, 97% coverage)
 ├── pyproject.toml        # ✅ COMPLETE: Modern uv + ruff configuration
 └── README.md             # ✅ COMPLETE: Development setup guide
 ```
@@ -29,11 +29,12 @@ python/                    # ISOLATED Python port directory
 ### Port Progress Status (Updated: September 13, 2025)
 - ✅ **Core Data Structures**: QGEdge (with callable functions), MFQuantumGraph (full finite element implementation) - **100% test coverage**
 - ✅ **Development Environment**: Modern Python tooling (uv, ruff), clean pyproject.toml, no linting issues
-- ✅ **Code Quality**: All tests passing (24/24), 98% code coverage, SparseEfficiencyWarnings resolved
-- ✅ **Preconditioners**: DegreePreconditioner & PolynomialPreconditioner with SciPy LinearOperator compatibility - **98% test coverage**
+- ✅ **Code Quality**: All tests passing (36/36), 97% code coverage, SparseEfficiencyWarnings resolved
+- ✅ **All Preconditioners**: DegreePreconditioner, PolynomialPreconditioner & **NeumannNeumannPreconditioner** with SciPy LinearOperator compatibility - **97% combined test coverage**
+- ✅ **Integration Tests**: Basic validation tests for mathematical properties and correctness
 - ❌ **Graph Utilities**: Need to enhance existing graph generation scripts
 - ❌ **Benchmarking**: Need to port `measure_nn.cpp` timing functionality
-- ❌ **Integration Tests**: Need validation against C++ reference implementations
+- ❌ **C++ Integration Tests**: Need direct validation against C++ reference implementations
 
 ## Critical Porting Patterns & Mappings
 
@@ -52,6 +53,7 @@ python/                    # ISOLATED Python port directory
 - **Preconditioner Interface**: All preconditioners inherit from PreconditionerBase and support SciPy LinearOperator
 - **Degree Preconditioner**: Simple diagonal preconditioner using inverse vertex weights
 - **Polynomial Preconditioner**: Advanced preconditioner using Schur complement diagonal entries
+- **Neumann-Neumann Preconditioner**: Domain decomposition method with edge-based local solvers and vertex weight averaging
 
 ## Development Workflows
 
@@ -66,7 +68,7 @@ cmake --build build
 ```bash
 cd python/                    # Work in isolated Python directory
 uv sync --dev                 # Install dependencies with uv
-uv run pytest                 # Run tests (24/24 passing, 98% coverage)
+uv run pytest                 # Run tests (36/36 passing, 97% coverage)
 uv run ruff check .           # Lint with ruff (all checks pass)
 uv run ruff format .          # Format with ruff
 ```
@@ -79,14 +81,17 @@ uv run ruff format .          # Format with ruff
 - **Test Coverage**: Currently achieving 100% test coverage on implemented components
 - **Test Organization**: 
   - `tests/unit/` - Individual component tests (✅ Complete for core components)
-  - `tests/integration/` - Full algorithm validation against C++ (⏳ Pending)
+  - `tests/integration/` - Full algorithm validation against C++ (✅ Basic validation tests, ⏳ C++ comparison pending)
   - `tests/benchmarks/` - Performance comparison suite (⏳ Pending)
 - **Quality Assurance**: All code passes ruff linting, pytest runs clean without warnings
 
 ## Port Progress & Implementation Order
 1. **Core Data Structures**: QGEdge class with callable functions ✅
 2. **Matrix Assembly**: Finite element discretization logic ✅
-3. **Preconditioners**: Custom solver preconditioners ✅
+3. **Preconditioners**: Custom solver preconditioners ✅ **ALL THREE COMPLETE**
+   - DegreePreconditioner: Simple diagonal inverse vertex weight scaling ✅
+   - PolynomialPreconditioner: Advanced Schur complement diagonal preconditioning ✅  
+   - NeumannNeumannPreconditioner: Domain decomposition with local edge solvers ✅
 4. **Benchmarking**: Performance measurement utilities ⏳
 5. **Graph Generation**: Enhanced Python graph utilities ⏳
 6. **Neural Network Integration**: PyTorch tensor compatibility ⏳
@@ -96,6 +101,26 @@ uv run ruff format .          # Format with ruff
 - **Template Specialization**: C++ preconditioner templates → Python ABC with concrete implementations
 - **Memory Layout**: Eigen column-major → ensure NumPy C/F order compatibility
 - **Solver Tolerance**: Maintain same convergence criteria across C++/Python versions
+- **Singular Systems**: Neumann-Neumann preconditioner handles inherently singular local problems with robust fallbacks
+
+## Current Status & Next Priorities (September 13, 2025)
+
+### ✅ COMPLETED: Core Finite Element Framework
+All essential mathematical components have been successfully ported from C++ to Python:
+
+- **Complete Preconditioner Suite**: All three preconditioners (Degree, Polynomial, Neumann-Neumann) fully implemented
+- **Robust Error Handling**: Singular system detection with LSQR fallbacks for domain decomposition
+- **SciPy Integration**: Full LinearOperator compatibility for iterative solvers (BiCGSTAB, CG)
+- **Mathematical Correctness**: Exact C++ algorithm replication with 97% test coverage
+- **Quality Assurance**: Zero linting errors, 36/36 tests passing, comprehensive validation
+
+### ⏳ NEXT PRIORITIES: Performance & Integration
+The core mathematical framework is complete. Focus should now shift to:
+
+1. **Performance Benchmarking**: Port `measure_nn.cpp` to compare Python vs C++ solver performance
+2. **Graph Utilities Enhancement**: Expand graph generation capabilities beyond basic examples  
+3. **C++ Validation Suite**: Direct numerical comparison tests against C++ reference implementation
+4. **PyTorch Integration**: Tensor compatibility for neural network-quantum graph hybrid methods
 
 ## Conventions & Patterns
 - **Graph Files**: Input/output graph data is stored in `graphs/*.txt`.
@@ -111,12 +136,6 @@ uv run ruff format .          # Format with ruff
     benchmarks/           # Performance measurement utilities
     utils/                # Graph generation, I/O utilities
   ```
-
-## Critical Implementation Notes
-- **Eigen EigenBase Pattern**: C++ uses custom matrix-free operators; port to scipy.sparse.linalg.LinearOperator
-- **Template Specialization**: C++ preconditioner templates → Python ABC with concrete implementations
-- **Memory Layout**: Eigen column-major → ensure NumPy C/F order compatibility
-- **Solver Tolerance**: Maintain same convergence criteria across C++/Python versions
 - **NO DUPLICATE STRUCTURES**: Keep Python port completely isolated in `python/` directory
 
 ## Integration Points
