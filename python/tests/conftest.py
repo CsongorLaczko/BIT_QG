@@ -29,6 +29,7 @@ def test_functions() -> tuple[Callable[[float], float], ...]:
     Returns:
         (c_func, v_func, f_func) - coefficient, potential, and force functions
     """
+
     def c_func(x: float) -> float:
         return 1.0  # constant coefficient
 

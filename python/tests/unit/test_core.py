@@ -12,6 +12,7 @@ class TestQGEdge:
 
     def test_qgedge_creation(self):
         """Test basic QGEdge creation."""
+
         def c_func(x: float) -> float:
             return 1.0
 
@@ -31,6 +32,7 @@ class TestQGEdge:
 
     def test_qgedge_equality(self):
         """Test QGEdge equality comparison."""
+
         def c_func(x: float) -> float:
             return 1.0
 
@@ -49,6 +51,7 @@ class TestQGEdge:
 
     def test_qgedge_equality_with_non_edge(self):
         """Test QGEdge equality with non-QGEdge objects."""
+
         def dummy_func(x: float) -> float:
             return 0.0
 
@@ -61,6 +64,7 @@ class TestQGEdge:
 
     def test_qgedge_hash(self):
         """Test QGEdge hashing for use in sets and dictionaries."""
+
         def dummy_func(x: float) -> float:
             return 0.0
 
@@ -83,6 +87,7 @@ class TestQGEdge:
 
     def test_qgedge_repr(self):
         """Test QGEdge string representation."""
+
         def dummy_func(x: float) -> float:
             return 0.0
 
@@ -95,6 +100,7 @@ class TestMFQuantumGraph:
 
     def test_simple_graph_creation(self):
         """Test creation of a simple 2-vertex, 1-edge graph."""
+
         def c_func(x: float) -> float:
             return 1.0  # constant coefficient
 
@@ -124,6 +130,7 @@ class TestMFQuantumGraph:
 
     def test_shape_property(self):
         """Test the shape property."""
+
         def dummy_func(x: float) -> float:
             return 1.0
 
@@ -134,6 +141,7 @@ class TestMFQuantumGraph:
 
     def test_matmul_operator(self):
         """Test the @ operator for matrix-vector multiplication."""
+
         def dummy_func(x: float) -> float:
             return 1.0
 
@@ -148,6 +156,7 @@ class TestMFQuantumGraph:
 
     def test_repr(self):
         """Test string representation."""
+
         def dummy_func(x: float) -> float:
             return 1.0
 

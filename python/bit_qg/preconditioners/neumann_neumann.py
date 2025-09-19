@@ -254,6 +254,7 @@ class NeumannNeumannPreconditioner(PreconditionerBase):
                 if not np.all(np.isfinite(local_solution)):
                     # Fallback: use least squares solution for singular systems
                     from scipy.sparse.linalg import lsqr
+
                     local_solution = lsqr(local_matrix, local_rhs)[0]
             except Exception:
                 # Final fallback for singular/ill-conditioned matrices

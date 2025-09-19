@@ -79,11 +79,7 @@ class PreconditionerBase(ABC):
         def matvec(x):
             return self.solve(x)
 
-        return LinearOperator(
-            shape=self.shape,
-            matvec=matvec,
-            dtype=np.float64
-        )
+        return LinearOperator(shape=self.shape, matvec=matvec, dtype=np.float64)
 
     def __matmul__(self, other: np.ndarray) -> np.ndarray:
         """

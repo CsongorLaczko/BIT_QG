@@ -434,6 +434,7 @@ class TestNeumannNeumannPreconditioner:
 
     def test_neumann_neumann_preconditioner_compute(self):
         """Test NeumannNeumann preconditioner computation."""
+
         # Create test quantum graph
         def c_func(x: float) -> float:
             return 1.0
@@ -460,6 +461,7 @@ class TestNeumannNeumannPreconditioner:
 
     def test_neumann_neumann_preconditioner_solve(self):
         """Test NeumannNeumann preconditioner solve operation."""
+
         # Create test system
         def c_func(x: float) -> float:
             return 1.0
@@ -488,6 +490,7 @@ class TestNeumannNeumannPreconditioner:
 
     def test_neumann_neumann_preconditioner_linear_operator(self):
         """Test NeumannNeumann preconditioner LinearOperator interface."""
+
         # Create test system
         def c_func(x: float) -> float:
             return 1.0

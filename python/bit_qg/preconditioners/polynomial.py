@@ -53,7 +53,11 @@ class PolynomialPreconditioner(PreconditionerBase):
         Raises:
             ValueError: If the quantum graph is not properly initialized
         """
-        if not hasattr(mfqg, 'AII') or not hasattr(mfqg, 'AIG') or not hasattr(mfqg, 'AGG'):
+        if (
+            not hasattr(mfqg, "AII")
+            or not hasattr(mfqg, "AIG")
+            or not hasattr(mfqg, "AGG")
+        ):
             raise ValueError("Quantum graph must have AII, AIG, and AGG matrices")
 
         # Store matrix references and create solver for AII

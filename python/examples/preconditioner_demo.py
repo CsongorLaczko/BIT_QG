@@ -19,6 +19,7 @@ from bit_qg import (
 
 def create_example_system():
     """Create a simple quantum graph system for testing."""
+
     # Define edge functions
     def c_func(x: float) -> float:
         return 1.0  # constant coefficient
@@ -97,26 +98,28 @@ def main():
     # Degree preconditioner
     degree_precond = DegreePreconditioner()
     sol1, iter1, info1 = solve_with_preconditioner(qg, degree_precond, rhs)
-    results['Degree'] = (iter1, info1)
+    results["Degree"] = (iter1, info1)
 
     # Polynomial preconditioner
     poly_precond = PolynomialPreconditioner()
     sol2, iter2, info2 = solve_with_preconditioner(qg, poly_precond, rhs)
-    results['Polynomial'] = (iter2, info2)
+    results["Polynomial"] = (iter2, info2)
 
     # No preconditioner (for comparison)
     print("\nSolving without preconditioner:")
+
     def matvec(x):
         return qg @ x
 
     A = LinearOperator(shape=qg.shape, matvec=matvec, dtype=np.float64)
 
     iteration_count = [0]
+
     def callback(x):
         iteration_count[0] += 1
 
     sol3, info3 = cg(A, rhs, callback=callback, atol=1e-8, maxiter=100)
-    results['None'] = (iteration_count[0], info3)
+    results["None"] = (iteration_count[0], info3)
 
     print(f"  Iterations: {iteration_count[0]}")
     print(f"  Convergence info: {info3}")
