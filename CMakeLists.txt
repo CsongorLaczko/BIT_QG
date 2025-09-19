@@ -17,4 +17,5 @@ add_executable(measure_nn ${SOURCES})
 target_include_directories(measure_nn
   PRIVATE
     ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/external/eigen-3.4.0
 )

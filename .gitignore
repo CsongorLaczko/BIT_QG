@@ -44,3 +44,4 @@ pinn
 models
 archive
 __pycache__/
+external
