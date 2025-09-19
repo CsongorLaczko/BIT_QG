@@ -87,5 +87,21 @@ int main(int argc, char* argv[]) {
 	std::cout << "\nNeumann-Neumann\n";
 	measure_mf_example_cg<NeumannNeumannPreconditioner<double>>(ex, N, eps, runs);
 
+	std::cout << "\nBiCGSTAB\n";
+	std::cout << "Vanilla\n";
+	measure_mf_example_bicgstab<Eigen::IdentityPreconditioner>(ex, N, eps, runs);
+	
+	std::cout << "\nDegree\n";
+	measure_mf_example_bicgstab<DegreePreconditioner<double>>(ex, N, eps, runs);
+
+	std::cout << "\nDiagonal\n";
+	measure_mf_example_bicgstab<DiagonalPreconditioner<double>>(ex, N, eps, runs);
+
+	std::cout << "\nPolynomial\n";
+	measure_mf_example_bicgstab<PolynomialPreconditioner<double>>(ex, N, eps, runs);
+
+	std::cout << "\nNeumann-Neumann\n";
+	measure_mf_example_bicgstab<NeumannNeumannPreconditioner<double>>(ex, N, eps, runs);
+
 	return 0;
 }
