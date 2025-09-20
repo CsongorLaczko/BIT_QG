@@ -5,16 +5,50 @@ This module implements the Neumann-Neumann preconditioner using domain decomposi
 methods, corresponding to the NeumannNeumannPreconditioner in the C++ implementation.
 """
 
+from enum import Enum
 from typing import TYPE_CHECKING
 
 import numpy as np
 from scipy.sparse import csc_matrix
-from scipy.sparse.linalg import spsolve
+from scipy.sparse.linalg import LinearOperator, spsolve
 
 from .base import PreconditionerBase
 
 if TYPE_CHECKING:
     from ..core.mf_quantum_graph import MFQuantumGraph
+
+
+class VertexBCType(Enum):
+    """Boundary condition types for vertices based on domain decomposition theory."""
+
+    BOUNDARY_NEUMANN = (
+        "boundary_neumann"  # Degree-1 vertices (∂G) - homogeneous Neumann-Kirchhoff
+    )
+    INTERIOR_CONTINUITY = (
+        "interior_continuity"  # Degree>1 vertices (int(G)) - continuity conditions
+    )
+    INTERFACE_DIRICHLET = (
+        "interface_dirichlet"  # Interface vertices (Γ) - fixed values in Dirichlet step
+    )
+    INTERFACE_NEUMANN = (
+        "interface_neumann"  # Interface vertices (Γ) - flux correction in Neumann step
+    )
+
+
+class NeumannNeumannStep(Enum):
+    """Iteration step type in Neumann-Neumann domain decomposition."""
+
+    DIRICHLET_STEP = "dirichlet_step"  # Interface gets Dirichlet BCs (fixed values)
+    NEUMANN_STEP = "neumann_step"  # Interface gets Neumann BCs (flux correction)
+
+
+class EdgeBCType(Enum):
+    """Edge boundary condition types based on endpoint vertex classifications."""
+
+    NN = "neumann_neumann"  # Both endpoints have Neumann conditions
+    NC = "neumann_continuity"  # Out=Neumann, In=Continuity/Dirichlet
+    CN = "continuity_neumann"  # Out=Continuity/Dirichlet, In=Neumann
+    CC = "continuity_continuity"  # Both endpoints have Continuity/Dirichlet conditions
 
 
 class NeumannNeumannPreconditioner(PreconditionerBase):
@@ -68,6 +102,13 @@ class NeumannNeumannPreconditioner(PreconditionerBase):
         self.N = mfqg.N
         self.edges = mfqg.edges
         self._size = self.vertices
+        self.vertex_weights = mfqg.vertex_weights
+
+        # Compute vertex degrees for boundary condition classification
+        self.vertex_degrees = np.zeros(self.vertices, dtype=int)
+        for edge in self.edges:
+            self.vertex_degrees[edge.out] += 1
+            self.vertex_degrees[edge.in_] += 1
 
         # Clear any existing solvers
         self.neumann_solvers = []
@@ -205,15 +246,98 @@ class NeumannNeumannPreconditioner(PreconditionerBase):
 
         return local_matrix.tocsc()
 
-    def solve(self, rhs: np.ndarray) -> np.ndarray:
+    def _classify_vertex_bc_type(
+        self, vertex_id: int, step: NeumannNeumannStep
+    ) -> VertexBCType:
         """
-        Apply the Neumann-Neumann preconditioner.
+        Classify vertex boundary condition type based on domain decomposition theory and iteration step.
 
-        This method solves local Neumann problems on each edge and combines
-        the results using vertex weight-based averaging.
+        Based on the Hungarian theory:
+        - Degree-1 vertices (∂G): Always homogeneous Neumann-Kirchhoff conditions (zero flux)
+        - Interior vertices (int(G)):
+          * Dirichlet step: Interface Dirichlet conditions (fixed values)
+          * Neumann step: Interface Neumann conditions (flux correction)
+
+        Args:
+            vertex_id: The vertex index to classify
+            step: Whether we're in Dirichlet step or Neumann step of the iteration
+
+        Returns:
+            VertexBCType indicating the boundary condition type for this step
+        """
+        degree = self.vertex_degrees[vertex_id]
+
+        if degree == 1:
+            # Degree-1 vertices are boundary vertices (∂G)
+            # They ALWAYS get homogeneous Neumann-Kirchhoff conditions (zero flux)
+            # This is independent of the iteration step
+            return VertexBCType.BOUNDARY_NEUMANN
+        else:
+            # Interior vertices (degree > 1) are interface vertices (Γ)
+            # Their boundary condition type depends on the iteration step:
+            if step == NeumannNeumannStep.DIRICHLET_STEP:
+                # In Dirichlet step: interface vertices get fixed values (Dirichlet)
+                return VertexBCType.INTERFACE_DIRICHLET
+            else:  # NEUMANN_STEP
+                # In Neumann step: interface vertices get flux correction (Neumann)
+                return VertexBCType.INTERFACE_NEUMANN
+
+    def _classify_edge_bc_type(self, edge, step: NeumannNeumannStep) -> EdgeBCType:
+        """
+        Classify edge boundary condition type based on endpoint vertex types and iteration step.
+
+        This determines which neural network model should be used for this edge
+        in the domain decomposition framework.
+
+        Args:
+            edge: QGEdge instance to classify
+            step: Whether we're in Dirichlet step or Neumann step of the iteration
+
+        Returns:
+            EdgeBCType indicating the edge boundary condition combination
+        """
+        out_bc_type = self._classify_vertex_bc_type(edge.out, step)
+        in_bc_type = self._classify_vertex_bc_type(edge.in_, step)
+
+        # Map vertex BC types to edge BC types based on actual boundary conditions
+        # Note: BOUNDARY_NEUMANN (degree-1) is always Neumann regardless of step
+        # INTERFACE_DIRICHLET/INTERFACE_NEUMANN depends on the iteration step
+
+        out_is_neumann = (
+            out_bc_type == VertexBCType.BOUNDARY_NEUMANN
+            or out_bc_type == VertexBCType.INTERFACE_NEUMANN
+        )
+        out_is_dirichlet = out_bc_type == VertexBCType.INTERFACE_DIRICHLET
+
+        in_is_neumann = (
+            in_bc_type == VertexBCType.BOUNDARY_NEUMANN
+            or in_bc_type == VertexBCType.INTERFACE_NEUMANN
+        )
+        in_is_dirichlet = in_bc_type == VertexBCType.INTERFACE_DIRICHLET
+
+        if out_is_neumann and in_is_neumann:
+            return EdgeBCType.NN  # Both endpoints are Neumann
+        elif out_is_neumann and in_is_dirichlet:
+            return EdgeBCType.NC  # Out=Neumann, In=Dirichlet (mapped to NC)
+        elif out_is_dirichlet and in_is_neumann:
+            return EdgeBCType.CN  # Out=Dirichlet, In=Neumann (mapped to CN)
+        else:  # Both Dirichlet
+            return EdgeBCType.CC  # Both endpoints are Dirichlet (mapped to CC)
+
+    def solve(
+        self,
+        rhs: np.ndarray,
+        step: NeumannNeumannStep = NeumannNeumannStep.DIRICHLET_STEP,
+    ) -> np.ndarray:
+        """
+        Apply the Neumann-Neumann preconditioner with step-aware boundary condition classification.
+
+        This method solves local problems on each edge using boundary conditions
+        appropriate for the current iteration step (Dirichlet or Neumann).
 
         Args:
             rhs: Right-hand side vector
+            step: Which step of Neumann-Neumann iteration (Dirichlet or Neumann step)
 
         Returns:
             Solution vector x = M^(-1) * rhs
@@ -236,6 +360,10 @@ class NeumannNeumannPreconditioner(PreconditionerBase):
 
         # Solve local problems for each edge
         for edge, local_matrix in zip(self.edges, self.neumann_solvers, strict=True):
+            # Classify edge boundary condition type for neural network model selection
+            # This is now step-aware: same edge can have different BC types depending on iteration step
+            edge_bc_type = self._classify_edge_bc_type(edge, step)
+
             # Create local right-hand side
             local_rhs = np.zeros(self.N)
 
@@ -246,6 +374,22 @@ class NeumannNeumannPreconditioner(PreconditionerBase):
             local_rhs[self.N - 1] = (
                 rhs[edge.in_] * self.vertex_weights[edge.in_]
             )  # Right boundary
+
+            # 🚀 NEURAL NETWORK INTEGRATION POINT:
+            # Here we have all information needed for neural network inference:
+            # - edge: contains coefficient functions c(x), v(x), f(x)
+            # - local_rhs: boundary condition values
+            # - edge_bc_type: which of 4 models to use (NN, NC, CN, CC) - NOW STEP-AWARE!
+            # - step: Dirichlet step or Neumann step of the iteration
+            # - self.N: discretization points
+            #
+            # For now, continue with original finite element solver
+            # TODO: Replace with neural network inference based on edge_bc_type AND step
+            # Current step: {step.value}, Edge type: {edge_bc_type.value}
+            # if self.use_neural_networks:
+            #     local_solution = self._neural_network_solve(edge, local_rhs, edge_bc_type, step)
+            # else:
+            #     local_solution = spsolve(local_matrix, local_rhs)
 
             # Solve local Neumann problem
             try:
@@ -272,6 +416,26 @@ class NeumannNeumannPreconditioner(PreconditionerBase):
             )
 
         return solution
+
+    def as_linear_operator(self) -> LinearOperator:
+        """
+        Create a SciPy LinearOperator wrapper for this preconditioner.
+
+        This overrides the base class method to handle the step parameter
+        required by the Neumann-Neumann solve method.
+
+        Returns:
+            LinearOperator that applies the preconditioner with default DIRICHLET_STEP
+        """
+        if not self.is_initialized:
+            raise RuntimeError("Preconditioner must be computed before use")
+
+        def matvec(x):
+            # Apply Neumann-Neumann preconditioner with default Dirichlet step
+            # In a full implementation, the step type would be provided by the outer iteration
+            return self.solve(x, NeumannNeumannStep.DIRICHLET_STEP)
+
+        return LinearOperator(shape=self.shape, matvec=matvec, dtype=np.float64)
 
     def __repr__(self) -> str:
         """String representation of the Neumann-Neumann preconditioner."""

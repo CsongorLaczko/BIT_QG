@@ -33,6 +33,7 @@ class DiagonalPreconditioner(PreconditionerBase):
         """Initialize the diagonal preconditioner."""
         super().__init__()
         self.inverse_diagonal = None
+        self._size = 0
 
     def compute(self, mfqg: "MFQuantumGraph") -> "DiagonalPreconditioner":
         """
@@ -87,9 +88,15 @@ class DiagonalPreconditioner(PreconditionerBase):
 
         Raises:
             RuntimeError: If compute() has not been called
+            ValueError: If RHS size doesn't match system size
         """
         if not self.is_initialized:
             raise RuntimeError("DiagonalPreconditioner must be computed before use")
+
+        if len(b) != self._size:
+            raise ValueError(
+                f"RHS size {len(b)} does not match system size {self._size}"
+            )
 
         return self.inverse_diagonal * b
 

@@ -142,7 +142,7 @@ class ComprehensiveValidator:
     
     def __init__(self, cpp_executable: Path = None):
         """Initialize validator with C++ executable path."""
-        self.root_dir = Path(__file__).parent
+        self.root_dir = Path(__file__).parent.parent  # Go up one level from python/ to project root
         self.cpp_executable = cpp_executable or self.root_dir / "build" / "Debug" / "measure_nn.exe"
         self.python_dir = self.root_dir / "python"
         self.graphs_dir = self.root_dir / "graphs"
