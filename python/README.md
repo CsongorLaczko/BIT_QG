@@ -62,6 +62,55 @@ uv add numpy scipy torch
 uv add --dev pytest ruff mypy
 ```
 
+## Running the Python Code with C++ Interface
+
+The Python port includes a `cpp_validation.py` script that provides **identical command-line interface** to the C++ `measure_nn.exe`:
+
+### Usage
+```bash
+uv run python cpp_validation.py <graph> <size> <logN> [runs]
+```
+
+### Examples
+```bash
+# Run with Dorogovtsev-Goltsev-Mendes graph, size 1, discretization level 3, 1 run
+uv run python cpp_validation.py dorogovtsev_goltsev_mendes 1 3 1
+
+# Run with Barabási-Albert graph, size 4, discretization level 4 (default 1 run)
+uv run python cpp_validation.py barabasi_albert 4 4
+
+# Multiple runs for statistical averaging
+uv run python cpp_validation.py dorogovtsev_goltsev_mendes 2 5 10
+```
+
+### Parameters
+- **graph**: Graph name prefix (e.g., "dorogovtsev_goltsev_mendes", "barabasi_albert")
+- **size**: Graph size identifier (1, 2, 3, 4)
+- **logN**: Discretization parameter where N = 2^logN - 1 + 2 points per edge
+- **runs**: Number of benchmark runs for statistical averaging (optional, default: 1)
+
+### Input Files
+The script reads graph adjacency matrices from `../graphs/{graph}_{size}.txt` files.
+
+### Output Format
+Produces output identical to C++ `measure_nn.exe`:
+```
+CG
+Vanilla
+assembly time: 7.419000e-04 runtime: 4.098000e-04 iterations: 1 error: 3.272772e-15
+
+Degree
+assembly time: 5.606000e-04 runtime: 3.323000e-04 iterations: 1 error: 3.272772e-15
+...
+
+BiCGSTAB
+Vanilla
+assembly time: 5.130000e-04 runtime: 4.375000e-04 iterations: 1 error: 6.665946e-15
+...
+```
+
+Both CG and BiCGSTAB solvers are tested with all 5 preconditioners (Identity/Vanilla, Degree, Diagonal, Polynomial, Neumann-Neumann).
+
 ## Project Structure
 
 ```

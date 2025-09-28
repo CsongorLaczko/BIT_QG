@@ -12,6 +12,7 @@ __author__ = "BIT_QG Team"
 from .core import MFQuantumGraph, QGEdge
 from .preconditioners import (
     DegreePreconditioner,
+    NeumannNeumannPreconditioner,
     PolynomialPreconditioner,
     PreconditionerBase,
 )
@@ -22,4 +23,5 @@ __all__ = [
     "PreconditionerBase",
     "DegreePreconditioner",
     "PolynomialPreconditioner",
+    "NeumannNeumannPreconditioner",
 ]

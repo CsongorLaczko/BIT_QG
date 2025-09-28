@@ -76,6 +76,21 @@ uv run ruff format .          # Format with ruff
 
 **CRITICAL**: Always work in `python/` directory, never mix with C++ root directory structure!
 
+### Python C++ Interface (Command-Line Compatibility)
+```bash
+cd python/                    # Work in Python directory
+uv run python cpp_validation.py <graph> <size> <logN> [runs]
+```
+
+**Example**: `uv run python cpp_validation.py dorogovtsev_goltsev_mendes 1 3 1`
+
+This script provides **identical command-line interface** to the C++ `measure_nn.exe`:
+- **Same Arguments**: `<graph> <size> <logN> [runs]` (exactly matching C++ interface)
+- **Same Input**: Reads from `graphs/{graph}_{size}.txt` files  
+- **Same Output Format**: Assembly time, runtime, iterations, error (matching C++ format)
+- **Same Calculations**: N = 2^logN - 1 + 2 discretization points
+- **Both Solvers**: Runs both CG and BiCGSTAB with all 5 preconditioners (Identity/Vanilla, Degree, Diagonal, Polynomial, Neumann-Neumann)
+
 ### Documentation Update Protocol
 **MANDATORY**: Always update copilot-instructions.md when completing major milestones, implementing new features, or discovering important findings. This includes:
 - ✅ **Completion Status Updates**: Update progress tracking and remaining tasks
