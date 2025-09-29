@@ -118,7 +118,13 @@ class QuantumGraphBenchmark:
             x0 = np.zeros_like(b)
 
         # Create LinearOperator for the MFQuantumGraph
-        A_op = LinearOperator(A.shape, matvec=A.solve, dtype=np.float64)
+        A_op = LinearOperator(A.shape, matvec=A.matvec, dtype=np.float64)
+
+        # Iteration counter for callback
+        iteration_count = [0]
+        
+        def iteration_callback(x):
+            iteration_count[0] += 1
 
         if solver_func == cg:
             solution, info = solver_func(
@@ -128,6 +134,7 @@ class QuantumGraphBenchmark:
                 rtol=self.tolerance,
                 maxiter=self.max_iterations,
                 atol=0.0,
+                callback=iteration_callback
             )
         else:  # bicgstab
             solution, info = solver_func(
@@ -137,18 +144,23 @@ class QuantumGraphBenchmark:
                 rtol=self.tolerance,
                 maxiter=self.max_iterations,
                 atol=0.0,
+                callback=iteration_callback
             )
 
         # Calculate residual norm
-        residual = b - A.solve(solution)
+        residual = b - A.matvec(solution)
         residual_norm = np.linalg.norm(residual)
 
-        # For SciPy solvers, info > 0 means convergence not achieved
-        iterations = info if info > 0 else self.max_iterations
-        if info == 0:
-            # Successful convergence, we need to estimate iterations
-            # This is a limitation of SciPy interface
-            iterations = 1  # Placeholder - SciPy doesn't return iteration count
+        # Use callback-counted iterations
+        iterations = iteration_count[0]
+        
+        # Handle solver info codes
+        if info > 0:
+            # Solver failed to converge within maxiter
+            iterations = self.max_iterations
+        elif info < 0:
+            # Solver breakdown or illegal input
+            logging.warning(f"Solver breakdown or illegal input: info={info}")
 
         return solution, iterations, residual_norm
 
@@ -165,10 +177,16 @@ class QuantumGraphBenchmark:
             x0 = np.zeros_like(b)
 
         # Create LinearOperator for the MFQuantumGraph
-        A_op = LinearOperator(A.shape, matvec=A.solve, dtype=np.float64)
+        A_op = LinearOperator(A.shape, matvec=A.matvec, dtype=np.float64)
 
         # Use the preconditioner as a LinearOperator
         M = preconditioner.as_linear_operator()
+        
+        # Iteration counter for callback
+        iteration_count = [0]
+        
+        def iteration_callback(x):
+            iteration_count[0] += 1
 
         if solver_func == cg:
             solution, info = solver_func(
@@ -179,6 +197,7 @@ class QuantumGraphBenchmark:
                 rtol=self.tolerance,
                 maxiter=self.max_iterations,
                 atol=0.0,
+                callback=iteration_callback
             )
         else:  # bicgstab
             solution, info = solver_func(
@@ -189,16 +208,23 @@ class QuantumGraphBenchmark:
                 rtol=self.tolerance,
                 maxiter=self.max_iterations,
                 atol=0.0,
+                callback=iteration_callback
             )
 
         # Calculate residual norm
-        residual = b - A.solve(solution)
+        residual = b - A.matvec(solution)
         residual_norm = np.linalg.norm(residual)
 
-        # For SciPy solvers, info > 0 means convergence not achieved
-        iterations = info if info > 0 else self.max_iterations
-        if info == 0:
-            iterations = 1  # Placeholder - SciPy doesn't return iteration count
+        # Use callback-counted iterations
+        iterations = iteration_count[0]
+        
+        # Handle solver info codes
+        if info > 0:
+            # Solver failed to converge within maxiter
+            iterations = self.max_iterations
+        elif info < 0:
+            # Solver breakdown or illegal input
+            logging.warning(f"Solver breakdown or illegal input: info={info}")
 
         return solution, iterations, residual_norm
 

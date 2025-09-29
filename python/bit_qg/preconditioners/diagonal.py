@@ -62,7 +62,7 @@ class DiagonalPreconditioner(PreconditionerBase):
 
             # Apply the Schur complement system: A * e_i
             # This gives us the i-th column of the system matrix
-            result = mfqg.solve(unit_vector)
+            result = mfqg.solve_direct(unit_vector)
 
             # Extract the diagonal entry A[i,i]
             diagonal_entry = result[i]

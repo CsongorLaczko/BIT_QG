@@ -140,7 +140,7 @@ class TestMFQuantumGraph:
         assert qg.shape == (3, 3)
 
     def test_matmul_operator(self):
-        """Test the @ operator for matrix-vector multiplication."""
+        """Test the @ operator for matrix-vector multiplication and solve consistency."""
 
         def dummy_func(x: float) -> float:
             return 1.0
@@ -149,10 +149,19 @@ class TestMFQuantumGraph:
         qg = MFQuantumGraph(N=5, vertices=2, edges=[edge])
 
         rhs = np.array([1.0, 2.0])
-        result1 = qg @ rhs
-        result2 = qg.solve(rhs)
-
-        np.testing.assert_array_almost_equal(result1, result2)
+        
+        # Test matrix-vector product with @ operator
+        matvec_result = qg @ rhs
+        matvec_result2 = qg.matvec(rhs)
+        np.testing.assert_array_almost_equal(matvec_result, matvec_result2)
+        
+        # Test solve consistency: A * solve(rhs) should approximately equal rhs
+        solution = qg.solve(rhs)
+        reconstructed_rhs = qg @ solution
+        
+        # Note: This may not be exactly equal due to iterative solver tolerance
+        # and the fact that we're testing with a very simple system
+        np.testing.assert_array_almost_equal(reconstructed_rhs, rhs, decimal=4)
 
     def test_repr(self):
         """Test string representation."""

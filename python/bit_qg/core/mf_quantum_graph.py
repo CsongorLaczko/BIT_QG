@@ -184,9 +184,9 @@ class MFQuantumGraph:
         # Pre-compute Schur complement right-hand side
         self.bG -= self.AIG.T @ self.solver.solve(self.bI)
 
-    def solve(self, rhs: np.ndarray) -> np.ndarray:
+    def matvec(self, rhs: np.ndarray) -> np.ndarray:
         """
-        Solve the Schur complement system using the factored AII matrix.
+        Matrix-vector product for the Schur complement operator.
 
         This implements: AGG * rhs - AIG.T @ AII^(-1) @ (AIG @ rhs)
 
@@ -194,13 +194,74 @@ class MFQuantumGraph:
             rhs: Right-hand side vector of length vertices
 
         Returns:
-            Solution vector of length vertices
+            Matrix-vector product result
         """
         return self.AGG @ rhs - self.AIG.T @ self.solver.solve(self.AIG @ rhs)
 
+    def solve(self, rhs: np.ndarray, solver_type: str = 'bicgstab', preconditioner=None, rtol: float = 1e-8, maxiter: int = 1000) -> np.ndarray:
+        """
+        Solve the Schur complement system using iterative solvers.
+
+        Args:
+            rhs: Right-hand side vector of length vertices
+            solver_type: 'cg' or 'bicgstab'
+            preconditioner: Optional preconditioner LinearOperator
+            rtol: Solver relative tolerance
+            maxiter: Maximum iterations
+
+        Returns:
+            Solution vector of length vertices
+        """
+        from scipy.sparse.linalg import bicgstab, cg, LinearOperator
+        
+        # Create LinearOperator for the Schur complement
+        A_op = LinearOperator(self.shape, matvec=self.matvec, dtype=np.float64)
+        
+        # The RHS for Schur complement is the input rhs
+        # (the bG correction is already applied in assembly)
+        
+        # Choose solver
+        if solver_type.lower() == 'cg':
+            solution, info = cg(
+                A_op,
+                rhs,
+                M=preconditioner,
+                rtol=rtol,
+                maxiter=maxiter,
+                atol=0.0
+            )
+        elif solver_type.lower() == 'bicgstab':
+            solution, info = bicgstab(
+                A_op,
+                rhs,
+                M=preconditioner,
+                rtol=rtol,
+                maxiter=maxiter,
+                atol=0.0
+            )
+        else:
+            raise ValueError(f"Unknown solver type: {solver_type}")
+            
+        if info > 0:
+            import logging
+            logging.warning(f"Solver did not converge in {info} iterations")
+        elif info < 0:
+            import logging
+            logging.error(f"Solver failed with error code {info}")
+            
+        return solution
+
+    def solve_direct(self, rhs: np.ndarray) -> np.ndarray:
+        """
+        Direct solve method for backward compatibility (used by preconditioners).
+        
+        This uses the original Schur complement direct solve approach.
+        """
+        return self.matvec(rhs)
+
     def __matmul__(self, rhs: np.ndarray) -> np.ndarray:
         """Matrix-vector multiplication operator (Python equivalent of operator*)."""
-        return self.solve(rhs)
+        return self.matvec(rhs)
 
     @property
     def shape(self) -> tuple[int, int]:
