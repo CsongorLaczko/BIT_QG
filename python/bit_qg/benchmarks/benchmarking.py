@@ -6,6 +6,7 @@ different solvers and preconditioners for quantum graph problems, porting
 the functionality from the C++ measure_nn.cpp implementation.
 """
 
+import logging
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -253,7 +254,14 @@ class QuantumGraphBenchmark:
                     problem, problem.bG, preconditioner, solver_func
                 )
             success = True
-        except Exception:
+        except Exception as e:
+            logging.error(
+                f"FALLBACK: Solver failure in benchmark: {e}. "
+                f"Solver: {solver_func.__name__ if hasattr(solver_func, '__name__') else 'unknown'}. "
+                f"Preconditioner: {type(preconditioner).__name__ if preconditioner else 'none'}. "
+                f"Problem size: {problem.AII.shape if hasattr(problem, 'AII') else 'unknown'}. "
+                f"Setting iterations to max ({self.max_iterations}) and residual to inf."
+            )
             # Handle solver failures gracefully
             iterations = self.max_iterations
             residual_norm = np.inf

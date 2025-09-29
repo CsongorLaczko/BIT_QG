@@ -6,6 +6,7 @@ methods, corresponding to the NeumannNeumannPreconditioner in the C++ implementa
 """
 
 from enum import Enum
+import logging
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -379,7 +380,7 @@ class NeumannNeumannPreconditioner(PreconditionerBase):
             # Here we have all information needed for neural network inference:
             # - edge: contains coefficient functions c(x), v(x), f(x)
             # - local_rhs: boundary condition values
-            # - edge_bc_type: which of 4 models to use (NN, NC, CN, CC) - NOW STEP-AWARE!
+            # - edge_bc_type: which of 4 models to use (NN, NC, CN, CC)
             # - step: Dirichlet step or Neumann step of the iteration
             # - self.N: discretization points
             #
@@ -396,11 +397,21 @@ class NeumannNeumannPreconditioner(PreconditionerBase):
                 local_solution = spsolve(local_matrix, local_rhs)
                 # Check for NaN or infinite results
                 if not np.all(np.isfinite(local_solution)):
+                    logging.warning(
+                        f"FALLBACK: Non-finite solution encountered on edge {edge}. "
+                        f"Matrix condition: {np.linalg.cond(local_matrix.toarray()) if hasattr(local_matrix, 'toarray') else 'unknown'}. "
+                        f"Using least squares fallback."
+                    )
                     # Fallback: use least squares solution for singular systems
                     from scipy.sparse.linalg import lsqr
 
                     local_solution = lsqr(local_matrix, local_rhs)[0]
-            except Exception:
+            except Exception as e:
+                logging.error(
+                    f"FALLBACK: Exception in local solve for edge {edge}: {e}. "
+                    f"Matrix shape: {local_matrix.shape}, RHS shape: {local_rhs.shape}. "
+                    f"Using simple boundary value approximation."
+                )
                 # Final fallback for singular/ill-conditioned matrices
                 # Use a simple approximation based on boundary values
                 local_solution = np.zeros(self.N)

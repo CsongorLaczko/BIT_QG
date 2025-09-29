@@ -7,6 +7,7 @@ C++ implementation.
 """
 
 import csv
+import logging
 import math
 from collections.abc import Callable
 from pathlib import Path
@@ -147,6 +148,10 @@ class GraphLoader:
                             edges.append(edge)
 
         except (ValueError, IndexError) as e:
+            logging.error(
+                f"FALLBACK: Error loading graph file - File: {filepath}, Error: {e}, "
+                f"Matrix size: {len(adjacency_matrix) if 'adjacency_matrix' in locals() else 'unknown'}"
+            )
             raise ValueError(
                 f"Invalid adjacency matrix format in {filepath}: {e}"
             ) from e

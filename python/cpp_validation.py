@@ -18,8 +18,13 @@ from pathlib import Path
 # Add the bit_qg package to path (we're running from python/ directory)
 sys.path.insert(0, str(Path(__file__).parent))
 
+# Import modules
+import setup_logging
 from bit_qg.benchmarks import QuantumGraphBenchmark
 from bit_qg.utils import GraphLoader
+
+# Enable logging to see fallback cases
+setup_logging.setup_logging()
 
 
 def cpp_format_output(solver_name: str, preconditioner_name: str, summary):
