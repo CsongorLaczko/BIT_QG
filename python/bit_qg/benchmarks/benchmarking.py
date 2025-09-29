@@ -276,6 +276,8 @@ class QuantumGraphBenchmark:
                     )
                 )
             else:
+                # CRITICAL: Compute the preconditioner before use
+                preconditioner.compute(problem)
                 solution, iterations, residual_norm = self._preconditioned_solve(
                     problem, problem.bG, preconditioner, solver_func
                 )

@@ -1,0 +1,78 @@
+{
+  "dorogovtsev_goltsev_mendes_1_logN3": {
+    "cg": {
+      "identity": {
+        "assembly_time": 0.00118090002797544,
+        "runtime": 0.00041089998558163643,
+        "iterations": 3,
+        "error": 3.2727722151114646e-15,
+        "success": true
+      },
+      "degree": {
+        "assembly_time": 0.0006781999836675823,
+        "runtime": 0.00033569999504834414,
+        "iterations": 3,
+        "error": 3.2727722151114646e-15,
+        "success": true
+      },
+      "diagonal": {
+        "assembly_time": 0.0005724999937228858,
+        "runtime": 0.0004561999812722206,
+        "iterations": 3,
+        "error": 2.5437984602642293e-15,
+        "success": true
+      },
+      "polynomial": {
+        "assembly_time": 0.0005601000157184899,
+        "runtime": 0.0006441999576054513,
+        "iterations": 3,
+        "error": 6.288778231130013e-15,
+        "success": true
+      },
+      "neumann_neumann": {
+        "assembly_time": 0.0005424999981187284,
+        "runtime": 0.001956299995072186,
+        "iterations": 3,
+        "error": 6.1219254948202025e-15,
+        "success": true
+      }
+    },
+    "bicgstab": {
+      "identity": {
+        "assembly_time": 0.0005635000416077673,
+        "runtime": 0.0004702999722212553,
+        "iterations": 2,
+        "error": 6.665946419691945e-15,
+        "success": true
+      },
+      "degree": {
+        "assembly_time": 0.0006929000373929739,
+        "runtime": 0.0005084999720565975,
+        "iterations": 2,
+        "error": 6.665946419691945e-15,
+        "success": true
+      },
+      "diagonal": {
+        "assembly_time": 0.0005455000209622085,
+        "runtime": 0.000553899968508631,
+        "iterations": 2,
+        "error": 3.165562300751198e-15,
+        "success": true
+      },
+      "polynomial": {
+        "assembly_time": 0.0006053999532014132,
+        "runtime": 0.0008461000397801399,
+        "iterations": 2,
+        "error": 4.901333058221016e-15,
+        "success": true
+      },
+      "neumann_neumann": {
+        "assembly_time": 0.0005625999765470624,
+        "runtime": 0.0020958000095561147,
+        "iterations": 2,
+        "error": 5.883736141492361e-15,
+        "success": true
+      }
+    }
+  }
+}
