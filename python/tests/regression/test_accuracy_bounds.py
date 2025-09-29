@@ -144,11 +144,23 @@ class TestMathematicalAccuracyRegression:
             residual = np.linalg.norm(mfqg.bG - mfqg.matvec(solution))
             errors.append(residual)
         
-        # Check that errors decrease (monotonicity)
-        for i in range(len(errors) - 1):
-            assert errors[i+1] <= errors[i] * 2.0, (
-                f"Error did not decrease sufficiently: {errors[i]:.2e} -> {errors[i+1]:.2e}"
+        # At machine precision (1e-15 to 1e-16), numerical noise dominates
+        # Instead of expecting strict monotonic decrease, verify all errors are small
+        machine_precision = 1e-14  # Slightly above machine epsilon
+        
+        for i, error in enumerate(errors):
+            assert error < machine_precision, (
+                f"Error {error:.2e} too large for discretization {discretizations[i]} "
+                f"(expected < {machine_precision:.2e})"
             )
+        
+        # Only check monotonicity if errors are above machine precision
+        significant_errors = [e for e in errors if e > machine_precision * 10]
+        if len(significant_errors) > 1:
+            for i in range(len(significant_errors) - 1):
+                assert significant_errors[i+1] <= significant_errors[i] * 2.0, (
+                    f"Error did not decrease sufficiently: {significant_errors[i]:.2e} -> {significant_errors[i+1]:.2e}"
+                )
     
     def test_reference_problem_validation(self):
         """Test against reference problems from research literature."""
