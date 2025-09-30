@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 """
-Setup logging configuration for BIT_QG debugging.
+Logging configuration for BIT_QG debugging.
 
-This script configures logging to show fallback and error messages from the
-quantum graph library. Run this before your main script to enable logging.
+This module configures logging to show fallback and error messages from the
+quantum graph library.
 
 Usage:
-    import setup_logging  # Just import to configure logging
-
-Or run directly:
-    python setup_logging.py
+    from bit_qg.utils.logging_config import setup_logging
+    setup_logging()  # Configure logging
 """
 
 import logging
@@ -51,7 +49,4 @@ def setup_logging(level=logging.WARNING):
 if __name__ == "__main__":
     # Default to WARNING level to see fallbacks and errors
     setup_logging(logging.WARNING)
-    print("Logging is now configured. Import this module in your scripts.")
-    print("Example:")
-    print("  import setup_logging")
-    print("  # Now run your quantum graph code")
+    print("Logging is now configured.")

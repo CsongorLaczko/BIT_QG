@@ -1,8 +1,8 @@
 """
 Utility modules for quantum graph operations.
 
-This package provides utilities for graph I/O, generation, and other
-helper functions for working with quantum graphs.
+This package provides utilities for graph I/O, generation, testing,
+validation, and other helper functions for working with quantum graphs.
 """
 
 from .graph_io import GraphLoader, load_quantum_graph

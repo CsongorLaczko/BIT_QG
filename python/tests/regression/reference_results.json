@@ -2,36 +2,36 @@
   "dorogovtsev_goltsev_mendes_1_logN3": {
     "cg": {
       "identity": {
-        "assembly_time": 0.00118090002797544,
-        "runtime": 0.00041089998558163643,
+        "assembly_time": 0.0011505000293254852,
+        "runtime": 0.0003996999585069716,
         "iterations": 3,
         "error": 3.2727722151114646e-15,
         "success": true
       },
       "degree": {
-        "assembly_time": 0.0006781999836675823,
-        "runtime": 0.00033569999504834414,
+        "assembly_time": 0.0007303999736905098,
+        "runtime": 0.00037079997127875686,
         "iterations": 3,
         "error": 3.2727722151114646e-15,
         "success": true
       },
       "diagonal": {
-        "assembly_time": 0.0005724999937228858,
-        "runtime": 0.0004561999812722206,
+        "assembly_time": 0.000722800032235682,
+        "runtime": 0.00044059997890144587,
         "iterations": 3,
         "error": 2.5437984602642293e-15,
         "success": true
       },
       "polynomial": {
-        "assembly_time": 0.0005601000157184899,
-        "runtime": 0.0006441999576054513,
+        "assembly_time": 0.0005365999531932175,
+        "runtime": 0.0006624000379815698,
         "iterations": 3,
         "error": 6.288778231130013e-15,
         "success": true
       },
       "neumann_neumann": {
-        "assembly_time": 0.0005424999981187284,
-        "runtime": 0.001956299995072186,
+        "assembly_time": 0.000534699996933341,
+        "runtime": 0.0020284000202082098,
         "iterations": 3,
         "error": 6.1219254948202025e-15,
         "success": true
@@ -39,38 +39,266 @@
     },
     "bicgstab": {
       "identity": {
-        "assembly_time": 0.0005635000416077673,
-        "runtime": 0.0004702999722212553,
+        "assembly_time": 0.0006532000261358917,
+        "runtime": 0.0004767999635078013,
         "iterations": 2,
         "error": 6.665946419691945e-15,
         "success": true
       },
       "degree": {
-        "assembly_time": 0.0006929000373929739,
-        "runtime": 0.0005084999720565975,
+        "assembly_time": 0.0005461000255309045,
+        "runtime": 0.00047610001638531685,
         "iterations": 2,
         "error": 6.665946419691945e-15,
         "success": true
       },
       "diagonal": {
-        "assembly_time": 0.0005455000209622085,
-        "runtime": 0.000553899968508631,
+        "assembly_time": 0.0007258999976329505,
+        "runtime": 0.0007242999854497612,
         "iterations": 2,
         "error": 3.165562300751198e-15,
         "success": true
       },
       "polynomial": {
-        "assembly_time": 0.0006053999532014132,
-        "runtime": 0.0008461000397801399,
+        "assembly_time": 0.000851699966005981,
+        "runtime": 0.0012807000312022865,
         "iterations": 2,
         "error": 4.901333058221016e-15,
         "success": true
       },
       "neumann_neumann": {
-        "assembly_time": 0.0005625999765470624,
-        "runtime": 0.0020958000095561147,
+        "assembly_time": 0.0008707999950274825,
+        "runtime": 0.002568500000052154,
         "iterations": 2,
         "error": 5.883736141492361e-15,
+        "success": true
+      }
+    }
+  },
+  "barabasi_albert_4_logN6": {
+    "cg": {
+      "identity": {
+        "assembly_time": 0.0018071000231429935,
+        "runtime": 0.00038979999953880906,
+        "iterations": 4,
+        "error": 1.875045367384137e-14,
+        "success": true
+      },
+      "degree": {
+        "assembly_time": 0.0016151999589055777,
+        "runtime": 0.00040530000114813447,
+        "iterations": 4,
+        "error": 1.8408377857429903e-14,
+        "success": true
+      },
+      "diagonal": {
+        "assembly_time": 0.0014480000245384872,
+        "runtime": 0.0005967000033706427,
+        "iterations": 4,
+        "error": 2.35445543544962e-14,
+        "success": true
+      },
+      "polynomial": {
+        "assembly_time": 0.0014803999802097678,
+        "runtime": 0.0009887000196613371,
+        "iterations": 4,
+        "error": 1.7427281458137343e-14,
+        "success": true
+      },
+      "neumann_neumann": {
+        "assembly_time": 0.001728900009766221,
+        "runtime": 0.0035036999615840614,
+        "iterations": 4,
+        "error": 3.1734811694891844e-14,
+        "success": true
+      }
+    },
+    "bicgstab": {
+      "identity": {
+        "assembly_time": 0.0016481999773532152,
+        "runtime": 0.0005815000040456653,
+        "iterations": 3,
+        "error": 5.2738721923807094e-14,
+        "success": true
+      },
+      "degree": {
+        "assembly_time": 0.0016166999703273177,
+        "runtime": 0.0006098999874666333,
+        "iterations": 3,
+        "error": 6.490578481676481e-14,
+        "success": true
+      },
+      "diagonal": {
+        "assembly_time": 0.0015217000036500394,
+        "runtime": 0.0009889000211842358,
+        "iterations": 3,
+        "error": 4.664920722542865e-14,
+        "success": true
+      },
+      "polynomial": {
+        "assembly_time": 0.0015863000298850238,
+        "runtime": 0.0013617000076919794,
+        "iterations": 3,
+        "error": 1.4079829297069837e-14,
+        "success": true
+      },
+      "neumann_neumann": {
+        "assembly_time": 0.0018102999893017113,
+        "runtime": 0.004868799995165318,
+        "iterations": 3,
+        "error": 1.385435064319155e-14,
+        "success": true
+      }
+    }
+  },
+  "barabasi_albert_100_logN6": {
+    "cg": {
+      "identity": {
+        "assembly_time": 0.059971800015773624,
+        "runtime": 0.015083699952811003,
+        "iterations": 40,
+        "error": 1.5566182711375615e-08,
+        "success": true
+      },
+      "degree": {
+        "assembly_time": 0.052720800042152405,
+        "runtime": 0.01044240000192076,
+        "iterations": 26,
+        "error": 1.4678180485643436e-08,
+        "success": true
+      },
+      "diagonal": {
+        "assembly_time": 0.051885000022593886,
+        "runtime": 0.04437269998015836,
+        "iterations": 26,
+        "error": 1.4697685111025306e-08,
+        "success": true
+      },
+      "polynomial": {
+        "assembly_time": 0.06076049996772781,
+        "runtime": 0.05013490002602339,
+        "iterations": 14,
+        "error": 9.584040658651474e-09,
+        "success": true
+      },
+      "neumann_neumann": {
+        "assembly_time": 0.053517699998337775,
+        "runtime": 0.27188270003534853,
+        "iterations": 14,
+        "error": 1.060261393938661e-08,
+        "success": true
+      }
+    },
+    "bicgstab": {
+      "identity": {
+        "assembly_time": 0.05414640001254156,
+        "runtime": 0.020323399978224188,
+        "iterations": 27,
+        "error": 1.0761611150115241e-08,
+        "success": true
+      },
+      "degree": {
+        "assembly_time": 0.05910300003597513,
+        "runtime": 0.013039199984632432,
+        "iterations": 16,
+        "error": 6.516539903821581e-09,
+        "success": true
+      },
+      "diagonal": {
+        "assembly_time": 0.052280699950642884,
+        "runtime": 0.04729140002746135,
+        "iterations": 16,
+        "error": 2.707895678924794e-09,
+        "success": true
+      },
+      "polynomial": {
+        "assembly_time": 0.05662230000598356,
+        "runtime": 0.05221900000469759,
+        "iterations": 9,
+        "error": 2.8057229641808492e-09,
+        "success": true
+      },
+      "neumann_neumann": {
+        "assembly_time": 0.06089359999168664,
+        "runtime": 0.31280810001771897,
+        "iterations": 9,
+        "error": 6.7985322494140525e-09,
+        "success": true
+      }
+    }
+  },
+  "barabasi_albert_500_logN6": {
+    "cg": {
+      "identity": {
+        "assembly_time": 0.28459379996638745,
+        "runtime": 0.13321430003270507,
+        "iterations": 65,
+        "error": 2.4620328717320403e-08,
+        "success": true
+      },
+      "degree": {
+        "assembly_time": 0.3103590999962762,
+        "runtime": 0.06438870000420138,
+        "iterations": 29,
+        "error": 3.648674440343723e-08,
+        "success": true
+      },
+      "diagonal": {
+        "assembly_time": 0.28712669998640195,
+        "runtime": 1.0898065000073984,
+        "iterations": 29,
+        "error": 3.6629594039650917e-08,
+        "success": true
+      },
+      "polynomial": {
+        "assembly_time": 0.29282810003496706,
+        "runtime": 1.0793653999571688,
+        "iterations": 16,
+        "error": 1.448177793467824e-08,
+        "success": true
+      },
+      "neumann_neumann": {
+        "assembly_time": 0.28052189998561516,
+        "runtime": 1.44115490000695,
+        "iterations": 16,
+        "error": 1.583364093188157e-08,
+        "success": true
+      }
+    },
+    "bicgstab": {
+      "identity": {
+        "assembly_time": 0.2775334999896586,
+        "runtime": 0.16211450000992045,
+        "iterations": 40,
+        "error": 4.715052641992081e-08,
+        "success": true
+      },
+      "degree": {
+        "assembly_time": 0.2901751000317745,
+        "runtime": 0.06267189997015521,
+        "iterations": 17,
+        "error": 2.8033787318483968e-08,
+        "success": true
+      },
+      "diagonal": {
+        "assembly_time": 0.28024430002551526,
+        "runtime": 0.8994884999701753,
+        "iterations": 18,
+        "error": 2.6404487102976035e-08,
+        "success": true
+      },
+      "polynomial": {
+        "assembly_time": 0.27004030003445223,
+        "runtime": 0.8923217999981716,
+        "iterations": 10,
+        "error": 1.219261427195376e-08,
+        "success": true
+      },
+      "neumann_neumann": {
+        "assembly_time": 0.2696296999929473,
+        "runtime": 1.6122385999769904,
+        "iterations": 9,
+        "error": 1.7286946681263938e-08,
         "success": true
       }
     }

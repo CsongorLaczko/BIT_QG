@@ -1,17 +1,14 @@
 #!/usr/bin/env python3
 """
-Generate correct reference results for regression testing.
+Reference data generator for regression testing.
 
-This script generates baseline data with properly computed preconditioners.
+This module generates baseline data with properly computed preconditioners
+for use in regression testing validation.
 """
 
 import json
 import time
 from pathlib import Path
-import sys
-
-# Add the parent directory to Python path for imports
-sys.path.append(str(Path(__file__).parent))
 
 from bit_qg.utils.graph_io import load_quantum_graph
 from bit_qg.benchmarks.benchmarking import QuantumGraphBenchmark
@@ -22,11 +19,26 @@ from bit_qg.preconditioners.neumann_neumann import NeumannNeumannPreconditioner
 
 
 def generate_reference_results():
-    """Generate reference results for small test cases."""
+    """
+    Generate reference results for comprehensive validation.
     
-    # Test parameters
+    This function generates Python baseline results for comparison with C++ implementation.
+    
+    C++ Reference Results (for validation):
+    - barabasi_albert_4 (logN=6): CG 3 iter, BiCGSTAB 4 iter (small graph)
+    - barabasi_albert_100 (logN=6): CG 39/25/25/13/13 iter, BiCGSTAB 28/17/16/9/9 iter (medium)
+    - barabasi_albert_500 (logN=6): CG 63/28/28/15/15 iter, BiCGSTAB 42/18/17/11/10 iter (large)
+    
+    Python typically shows ±1-2 iteration difference due to algorithmic conventions,
+    which is within expected tolerance for iterative methods.
+    """
+    
+    # Test parameters - expanded to include C++ validation cases
     test_cases = [
         ("dorogovtsev_goltsev_mendes_1", 3),  # Small graph, logN=3 (N=9 points)
+        ("barabasi_albert_4", 6),             # Small Barabási-Albert, logN=6 (N=65 points)  
+        ("barabasi_albert_100", 6),           # Medium Barabási-Albert, logN=6 (N=65 points)
+        ("barabasi_albert_500", 6),           # Large Barabási-Albert, logN=6 (N=65 points)
     ]
     
     results = {}
@@ -79,7 +91,7 @@ def generate_reference_results():
             continue
     
     # Save results
-    output_file = Path(__file__).parent / "tests" / "regression" / "reference_results.json"
+    output_file = Path(__file__).parent.parent.parent / "tests" / "regression" / "reference_results.json"
     output_file.parent.mkdir(parents=True, exist_ok=True)
     
     with open(output_file, 'w') as f:
@@ -87,17 +99,3 @@ def generate_reference_results():
     
     print(f"Reference results saved to {output_file}")
     return results
-
-
-if __name__ == "__main__":
-    results = generate_reference_results()
-    
-    # Print summary
-    print("\nSummary:")
-    for graph_key, graph_data in results.items():
-        print(f"{graph_key}:")
-        for solver, solver_data in graph_data.items():
-            print(f"  {solver}:")
-            for prec_name, prec_data in solver_data.items():
-                status = "✅" if prec_data['success'] else "❌"
-                print(f"    {prec_name}: {prec_data['iterations']} iter, {prec_data['error']:.2e} error {status}")

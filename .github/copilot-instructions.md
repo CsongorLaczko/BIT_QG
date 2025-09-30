@@ -13,19 +13,28 @@ BIT_QG is a scientific computing project focused on quantum graphs and numerical
 - **Main Executables**: `measure_nn.cpp` (performance benchmarking), `mf_quantum_graph.cpp` (core implementation)
 - **Dependencies**: Pure Eigen (no libtorch in C++ code despite `libtorch/` directory presence)
 
-### Python Port Structure (Current)
+### Python Port Structure (Current - REORGANIZED September 30, 2025)
 ```
 python/                    # ISOLATED Python port directory (v0.1.0)
-├── bit_qg/                # Main Python package
+├── main.py               # ✅ SINGLE ENTRY POINT: All operations (test, benchmark, demo, validate)
+├── bit_qg/               # Main Python package
 │   ├── core/             # ✅ COMPLETE: QGEdge, MFQuantumGraph classes (100% tested)
-│   ├── preconditioners/ # ✅ COMPLETE: All 4 preconditioners implemented (95% tested)
+│   ├── preconditioners/  # ✅ COMPLETE: All 4 preconditioners implemented (95% tested)
 │   ├── benchmarks/       # ✅ COMPLETE: Performance measurement utilities (91% tested)
-│   └── utils/            # ✅ COMPLETE: Graph generation, I/O utilities (99% tested)
+│   └── utils/            # ✅ COMPLETE: Graph I/O, test runner, validation utilities
+│       ├── graph_io.py   # Graph loading and I/O operations
+│       ├── test_runner.py# Comprehensive 5-level test framework
+│       ├── cpp_validator.py # C++ validation interface
+│       ├── logging_config.py # Centralized logging configuration
+│       ├── demo_runner.py # Demonstration script runner
+│       └── reference_generator.py # Validation data generation
 ├── tests/                # ✅ COMPLETE: Comprehensive unit & integration tests (72/72 passing, 94% coverage)
 ├── examples/             # ✅ COMPLETE: Demo scripts for all preconditioners (2 files)
 ├── pyproject.toml        # ✅ COMPLETE: Modern uv + ruff configuration
 └── README.md             # ✅ COMPLETE: Development setup guide
 ```
+
+**🎯 SINGLE ENTRY POINT ARCHITECTURE**: All Python operations now go through `main.py` with clear command structure.
 
 ## Port Progress Status (Updated: September 29, 2025)
 - ✅ **Core Data Structures**: QGEdge (with callable functions), MFQuantumGraph (full finite element implementation) - **100% test coverage**
@@ -67,31 +76,88 @@ cmake --build build
 .\build\measure_nn.exe
 ```
 
-### Python Port Development (Current)
+### Python Port Development (Current - REORGANIZED September 30, 2025)
 ```bash
 cd python/                    # Work in isolated Python directory
 uv sync --dev                 # Install dependencies with uv
-uv run pytest                 # Run tests (36/36 passing, 97% coverage)
+
+# SINGLE ENTRY POINT - All operations through main.py:
+python main.py test                          # Run all tests
+python main.py test --level 1 --coverage    # Run unit tests with coverage
+python main.py benchmark dorogovtsev_goltsev_mendes 1 3 1  # C++ validation
+python main.py demo degree                  # Demo degree preconditioner
+python main.py validate                     # Generate reference data
+python main.py --help                       # Show all available commands
+
+# Development quality checks:
 uv run ruff check .           # Lint with ruff (all checks pass)
 uv run ruff format .          # Format with ruff
+uvx ty check                  # Type checking (all checks pass)
 ```
 
-**CRITICAL**: Always work in `python/` directory, never mix with C++ root directory structure!
+**CRITICAL ORGANIZATION RULES**:
+- ✅ **Single Entry Point**: All operations go through `main.py` 
+- ✅ **Clean Root Directory**: No scattered utility scripts in `python/` root
+- ✅ **Organized Utils**: All utilities in `bit_qg/utils/` package
+- ✅ **Command Structure**: `main.py {test|benchmark|demo|validate} [options]`
+- ❌ **NO Random Scripts**: Never create standalone scripts in `python/` root
+- ❌ **NO Duplicate Tools**: Consolidate functionality into single entry point
 
-### Python C++ Interface (Command-Line Compatibility)
+## 🏗️ **CRITICAL PROJECT ORGANIZATION RULES (September 30, 2025)**
+
+### **Python Directory Structure Enforcement**
+**MANDATORY**: These rules MUST be followed to maintain clean, organized codebase:
+
+#### ✅ **ALLOWED in `python/` root:**
+- `main.py` - **SINGLE ENTRY POINT** (the only executable script)
+- `pyproject.toml`, `README.md`, `uv.lock` - Configuration files
+- `bit_qg/` - Main package directory
+- `tests/` - Test suite directory
+- `examples/` - Demo scripts directory
+- Hidden directories: `.venv*`, `.pytest_cache`, `htmlcov`, `__pycache__`
+
+#### ❌ **FORBIDDEN in `python/` root:**
+- **NO** standalone utility scripts (`setup_logging.py`, `generate_reference.py`, etc.)
+- **NO** alternative entry points (`cpp_validation.py`, `run_all_tests.py`, etc.)
+- **NO** scattered Python files outside package structure
+- **NO** temporary scripts or test files
+
+#### 🎯 **Single Entry Point Architecture:**
 ```bash
-cd python/                    # Work in Python directory
-uv run python cpp_validation.py <graph> <size> <logN> [runs]
+# CORRECT - Everything through main.py:
+python main.py test --level 1
+python main.py benchmark graph 1 3
+python main.py demo degree
+python main.py validate
+
+# WRONG - Scattered entry points:
+python run_tests.py           # ❌ FORBIDDEN
+python cpp_validation.py      # ❌ FORBIDDEN  
+python setup_logging.py       # ❌ FORBIDDEN
 ```
 
-**Example**: `uv run python cpp_validation.py dorogovtsev_goltsev_mendes 1 3 1`
+#### 🗂️ **Utility Organization:**
+- **All utilities** → `bit_qg/utils/` package
+- **Test infrastructure** → `bit_qg/utils/test_runner.py`
+- **Validation tools** → `bit_qg/utils/cpp_validator.py`, `reference_generator.py`
+- **Configuration** → `bit_qg/utils/logging_config.py`
+- **Demonstrations** → `bit_qg/utils/demo_runner.py`
 
-This script provides **identical command-line interface** to the C++ `measure_nn.exe`:
-- **Same Arguments**: `<graph> <size> <logN> [runs]` (exactly matching C++ interface)
-- **Same Input**: Reads from `graphs/{graph}_{size}.txt` files  
-- **Same Output Format**: Assembly time, runtime, iterations, error (matching C++ format)
-- **Same Calculations**: N = 2^logN - 1 + 2 discretization points
-- **Both Solvers**: Runs both CG and BiCGSTAB with all 5 preconditioners (Identity/Vanilla, Degree, Diagonal, Polynomial, Neumann-Neumann)
+#### 🔧 **Development Workflow:**
+1. **Add new functionality** → Create module in appropriate `bit_qg/` subdirectory
+2. **Add new command** → Extend `main.py` with new subcommand
+3. **Add utilities** → Place in `bit_qg/utils/` and import in `main.py`
+4. **Never** create standalone scripts in root directory
+
+### **Package Structure Standards:**
+- **Core algorithms** → `bit_qg/core/`
+- **Solver preconditioners** → `bit_qg/preconditioners/`
+- **Performance tools** → `bit_qg/benchmarks/`
+- **I/O and utilities** → `bit_qg/utils/`
+- **All tests** → `tests/` (outside package)
+- **Demo scripts** → `examples/` (outside package)
+
+
 
 ### 🔧 **CRITICAL FIX: Iteration Count Issue Resolved (September 29, 2025)**
 
@@ -690,26 +756,42 @@ The Python port has **successfully achieved mathematical parity** with the C++ r
 - **Output**: Same format as C++ measure_nn
 - **Example**: `uv run python cpp_validation.py dorogovtsev_goltsev_mendes 1 3 1`
 
-## Examples
+## Examples (Updated September 30, 2025)
+### C++ Operations
 - To generate a graph: `python graphs/generate.py`
 - To build C++ code: `cmake -S . -B build && cmake --build build` (requires Eigen3)
 - To run a PINN example: Check `pinn/examples/` for scripts
-- To test Python preconditioners: `uv run python examples/diagonal_preconditioner_demo.py`
-- To benchmark all preconditioners: `uv run python examples/preconditioner_demo.py`
-- To run C++ validation interface: `uv run python cpp_validation.py dorogovtsev_goltsev_mendes 1 3 1`
-- To run comprehensive validation: `uv run python comprehensive_validation.py`
 
-## Key Files & Directories
+### Python Operations (Single Entry Point)
+- **Run Tests**: `python main.py test --level 1` (unit tests only)
+- **Run All Tests**: `python main.py test --coverage` (with coverage report)
+- **C++ Validation**: `python main.py benchmark dorogovtsev_goltsev_mendes 1 3 1`
+- **Demo Preconditioners**: `python main.py demo degree` (specific) or `python main.py demo` (all)
+- **Generate Reference Data**: `python main.py validate`
+- **Help**: `python main.py --help` (show all commands)
+- **Quick Type Check**: `uvx ty check` (verify type safety)
+
+## Key Files & Directories (Updated September 30, 2025)
+### C++ Implementation
 - `src/`, `include/`: C++ source and headers
 - `graphs/`: Graph data and generation scripts
 - `pinn/`: PINN models, scripts, and exported models
 - `libtorch/`: External library dependencies
 - `build/`: C++ build artifacts
-- `python/`: Complete Python port with full C++ parity
-- `cpp_validation.py`: C++ interface compatibility script
-- `comprehensive_validation.py`: Complete validation framework
-- `COMPREHENSIVE_VALIDATION_REPORT.md`: Detailed validation results
-- `NUMERICAL_DIFFERENCES_ANALYSIS.md`: Analysis of C++ vs Python differences
+
+### Python Implementation (Organized)
+- `python/main.py`: **SINGLE ENTRY POINT** for all Python operations
+- `python/bit_qg/`: Main Python package with organized modules
+- `python/bit_qg/utils/`: All utility modules (test runner, validation, logging)
+- `python/tests/`: Complete 5-level testing framework
+- `python/examples/`: Demonstration scripts
+- `python/pyproject.toml`: Modern uv + ruff configuration
+
+### Legacy Files (Removed September 30, 2025)
+- ~~`cpp_validation.py`~~ → `main.py benchmark` command
+- ~~`run_all_tests.py`~~ → `main.py test` command
+- ~~`setup_logging.py`~~ → `bit_qg/utils/logging_config.py`
+- ~~`generate_reference.py`~~ → `main.py validate` command
 
 ---
 _If any section is unclear or missing important details, please provide feedback to improve these instructions._

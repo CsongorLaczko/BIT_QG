@@ -2,23 +2,16 @@
 """
 Comprehensive Test Runner for BIT_QG Python Implementation
 
-This script runs the complete 5-level testing framework:
+This module implements the complete 5-level testing framework:
 - Level 1: Unit Tests (individual components)
 - Level 2: Integration Tests (multi-component interactions)
 - Level 3: Regression Tests (mathematical accuracy + performance)
 - Level 4: End-to-End Tests (complete workflows)
 - Level 5: Stress Tests (large-scale validation)
-
-Usage:
-    python run_all_tests.py              # Run all tests
-    python run_all_tests.py --fast       # Skip slow tests
-    python run_all_tests.py --level 1    # Run specific level only
-    python run_all_tests.py --coverage   # Include coverage report
 """
 
 import subprocess
 import sys
-import argparse
 import time
 from pathlib import Path
 
@@ -178,63 +171,3 @@ class TestRunner:
         print(f"📁 Test artifacts: {Path.cwd() / 'tests'}")
         print("📊 Coverage report: htmlcov/index.html")
         print(f"{'='*70}")
-
-
-def main():
-    """Main test runner entry point."""
-    parser = argparse.ArgumentParser(description="Run BIT_QG comprehensive test suite")
-    parser.add_argument("--level", type=int, choices=[1, 2, 3, 4, 5],
-                       help="Run specific test level only (1-5)")
-    parser.add_argument("--fast", action="store_true",
-                       help="Skip slow tests (stress tests, large problems)")
-    parser.add_argument("--coverage", action="store_true",
-                       help="Include coverage analysis")
-    parser.add_argument("--quiet", action="store_true",
-                       help="Minimal output, summary only")
-    
-    args = parser.parse_args()
-    
-    runner = TestRunner()
-    
-    print("🧪 BIT_QG Comprehensive Testing Framework")
-    print(f"{'='*70}")
-    print("🎯 Running complete 5-level validation suite")
-    print("📋 Mathematical correctness • Performance • Integration")
-    print(f"{'='*70}")
-    
-    # Run specific level if requested
-    if args.level:
-        if args.level == 1:
-            runner.run_level_1_unit_tests()
-        elif args.level == 2:
-            runner.run_level_2_integration_tests()
-        elif args.level == 3:
-            runner.run_level_3_regression_tests()
-        elif args.level == 4:
-            runner.run_level_4_end_to_end_tests()
-        elif args.level == 5:
-            runner.run_level_5_stress_tests()
-    else:
-        # Run all levels
-        runner.run_level_1_unit_tests()
-        runner.run_level_2_integration_tests()
-        runner.run_level_3_regression_tests()
-        runner.run_level_4_end_to_end_tests()
-        
-        if not args.fast:
-            runner.run_level_5_stress_tests()
-    
-    # Run with coverage if requested
-    if args.coverage:
-        test_paths = ["tests/unit", "tests/integration", "tests/regression", "tests/end_to_end"]
-        if Path("tests/stress").exists() and not args.fast:
-            test_paths.append("tests/stress")
-        runner.run_with_coverage(test_paths)
-    
-    # Print summary
-    if not args.quiet:
-        runner.print_summary()
-
-
-if __name__ == "__main__":
-    main()
