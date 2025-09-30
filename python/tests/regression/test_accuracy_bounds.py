@@ -186,7 +186,7 @@ class TestMathematicalAccuracyRegression:
                     iteration_count[0] += 1
                 
                 from scipy.sparse.linalg import LinearOperator, cg, bicgstab
-                A_op = LinearOperator(mfqg.shape, matvec=mfqg.matvec, dtype=np.float64)
+                A_op = LinearOperator(shape=mfqg.shape, matvec=mfqg.matvec, dtype=np.float64)  # type: ignore[unknown-argument]
                 
                 if solver_type == 'cg':
                     solution, info = cg(A_op, mfqg.bG, callback=callback, rtol=1e-8)

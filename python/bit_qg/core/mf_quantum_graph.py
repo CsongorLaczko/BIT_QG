@@ -215,7 +215,7 @@ class MFQuantumGraph:
         from scipy.sparse.linalg import bicgstab, cg, LinearOperator
         
         # Create LinearOperator for the Schur complement
-        A_op = LinearOperator(self.shape, matvec=self.matvec, dtype=np.float64)
+        A_op = LinearOperator(shape=self.shape, matvec=self.matvec, dtype=np.float64)  # type: ignore[unknown-argument]
         
         # The RHS for Schur complement is the input rhs
         # (the bG correction is already applied in assembly)

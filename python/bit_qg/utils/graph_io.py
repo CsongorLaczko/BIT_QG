@@ -11,8 +11,9 @@ import logging
 import math
 from collections.abc import Callable
 from pathlib import Path
+from typing import cast
 
-from ..core import QGEdge
+from ..core import QGEdge, EdgeFunction
 
 
 class GraphLoader:
@@ -144,7 +145,7 @@ class GraphLoader:
                     for j in range(i + 1, vertices):  # Only upper triangular
                         if adjacency_matrix[i][j] == 1:
                             # Create edge from vertex i to vertex j
-                            edge = QGEdge(out=i, in_=j, c=c_func, v=v_func, f=f_func)
+                            edge = QGEdge(out=i, in_=j, c=cast(EdgeFunction, c_func), v=cast(EdgeFunction, v_func), f=cast(EdgeFunction, f_func))
                             edges.append(edge)
 
         except (ValueError, IndexError) as e:
@@ -159,7 +160,7 @@ class GraphLoader:
         return edges, vertices
 
     def load_from_graph_file(
-        self, graph_name: str, graphs_dir: str | Path = None
+        self, graph_name: str, graphs_dir: str | Path | None = None
     ) -> tuple[list[QGEdge], int]:
         """
         Load a quantum graph from the standard graphs directory.
@@ -240,7 +241,7 @@ class GraphLoader:
 
 
 def load_quantum_graph(
-    graph_name: str, graphs_dir: str | Path = None
+    graph_name: str, graphs_dir: str | Path | None = None
 ) -> tuple[list[QGEdge], int]:
     """
     Convenience function to load a quantum graph from file.

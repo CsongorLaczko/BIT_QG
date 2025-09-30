@@ -446,7 +446,7 @@ class NeumannNeumannPreconditioner(PreconditionerBase):
             # In a full implementation, the step type would be provided by the outer iteration
             return self.solve(x, NeumannNeumannStep.DIRICHLET_STEP)
 
-        return LinearOperator(shape=self.shape, matvec=matvec, dtype=np.float64)
+        return LinearOperator(shape=self.shape, matvec=matvec, dtype=np.float64)  # type: ignore[unknown-argument]
 
     def __repr__(self) -> str:
         """String representation of the Neumann-Neumann preconditioner."""

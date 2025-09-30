@@ -84,7 +84,7 @@ class TestDiagonalPreconditioner:
 
         # Verify that the diagonal entries make sense
         # (they should be positive for a well-posed problem)
-        diagonal_entries = 1.0 / prec.inverse_diagonal
+        diagonal_entries = 1.0 / prec.inverse_diagonal  # type: ignore[operator]
         assert np.all(np.isfinite(diagonal_entries))
 
         # For a quantum graph problem, diagonal entries should be positive
@@ -116,4 +116,4 @@ class TestDiagonalPreconditioner:
 
         # Check that all entries are reasonable (not too large)
         # This tests the zero-diagonal fallback
-        assert np.all(prec.inverse_diagonal <= 1e10)
+        assert np.all(prec.inverse_diagonal <= 1e10)  # type: ignore[operator]

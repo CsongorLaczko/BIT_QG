@@ -53,7 +53,7 @@ def solve_with_preconditioner(qg, preconditioner, rhs):
     def matvec(x):
         return qg @ x
 
-    A = LinearOperator(shape=qg.shape, matvec=matvec, dtype=np.float64)
+    A = LinearOperator(shape=qg.shape, matvec=matvec, dtype=np.float64)  # type: ignore[unknown-argument]
 
     # Get preconditioner as LinearOperator
     M = preconditioner.as_linear_operator()
@@ -111,7 +111,7 @@ def main():
     def matvec(x):
         return qg @ x
 
-    A = LinearOperator(shape=qg.shape, matvec=matvec, dtype=np.float64)
+    A = LinearOperator(shape=qg.shape, matvec=matvec, dtype=np.float64)  # type: ignore[unknown-argument]
 
     iteration_count = [0]
 

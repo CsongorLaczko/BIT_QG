@@ -57,7 +57,7 @@ class TestDegreePreconditioner:
         assert result is precond
         assert precond.is_initialized
         assert precond.size == 2  # 2 vertices
-        assert len(precond.vertex_weights) == 2
+        assert len(precond.vertex_weights) == 2  # type: ignore[arg-type]
 
         # Check vertex weights computation (each vertex has degree 1)
         expected_weights = np.array([1.0, 1.0])  # 1/degree = 1/1 = 1
@@ -164,7 +164,7 @@ class TestDegreePreconditioner:
 
         mock_qg = MockQuantumGraph()
         with pytest.raises(ValueError, match="Quantum graph must have vertex weights"):
-            precond.compute(mock_qg)
+            precond.compute(mock_qg)  # type: ignore[arg-type]
 
         # Test compute with zero vertex weight
         def c_func(x: float) -> float:
@@ -184,7 +184,7 @@ class TestDegreePreconditioner:
         precond.compute(qg)
 
         # Should handle zero weight gracefully (set to 1.0)
-        assert precond.vertex_weights[0] == 1.0
+        assert precond.vertex_weights[0] == 1.0  # type: ignore[index]
 
         # Test wrong size
         with pytest.raises(ValueError, match="does not match preconditioner size"):
@@ -248,7 +248,7 @@ class TestPolynomialPreconditioner:
         assert result is precond
         assert precond.is_initialized
         assert precond.size == 2  # 2 vertices
-        assert len(precond.vertex_weights) == 2
+        assert len(precond.vertex_weights) == 2  # type: ignore[arg-type]
         assert precond.AII_solver is not None
         assert precond.AIG is not None
         assert precond.AGG is not None
@@ -328,7 +328,7 @@ class TestPolynomialPreconditioner:
         with pytest.raises(
             ValueError, match="Quantum graph must have AII, AIG, and AGG matrices"
         ):
-            precond.compute(mock_qg)
+            precond.compute(mock_qg)  # type: ignore[arg-type]
 
         # Test with a quantum graph that might have small diagonal entries
         def c_func(x: float) -> float:
@@ -380,7 +380,7 @@ class TestPolynomialPreconditioner:
 
         try:
             # Temporarily replace the class method
-            PolynomialPreconditioner.compute = forced_small_diagonal_compute
+            PolynomialPreconditioner.compute = forced_small_diagonal_compute  # type: ignore[method-assign]
 
             # Create and use the modified preconditioner
             line88_precond = PolynomialPreconditioner()
@@ -388,7 +388,7 @@ class TestPolynomialPreconditioner:
 
             # Verify it worked
             assert line88_precond.is_initialized
-            assert all(w == 1.0 for w in line88_precond.vertex_weights)
+            assert all(w == 1.0 for w in line88_precond.vertex_weights)  # type: ignore[union-attr]
 
         finally:
             # Always restore the original method
@@ -536,7 +536,7 @@ class TestNeumannNeumannPreconditioner:
         with pytest.raises(
             ValueError, match="Quantum graph must have edges and vertex_weights"
         ):
-            precond.compute(mock_qg)
+            precond.compute(mock_qg)  # type: ignore[arg-type]
 
     def test_neumann_neumann_preconditioner_repr(self):
         """Test string representation of NeumannNeumann preconditioner."""

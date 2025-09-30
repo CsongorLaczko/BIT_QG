@@ -103,7 +103,7 @@ class QuantumGraphBenchmark:
         max_iterations: int = 1000,
     ) -> "QuantumGraphBenchmark":
         """Create benchmark from a graph file."""
-        edges, vertices = load_quantum_graph(graph_file)
+        edges, vertices = load_quantum_graph(str(graph_file))
         return cls(edges, vertices, tolerance, max_iterations)
 
     def _identity_preconditioner_solve(
@@ -118,7 +118,7 @@ class QuantumGraphBenchmark:
             x0 = np.zeros_like(b)
 
         # Create LinearOperator for the MFQuantumGraph
-        A_op = LinearOperator(A.shape, matvec=A.matvec, dtype=np.float64)
+        A_op = LinearOperator(shape=A.shape, matvec=A.matvec, dtype=np.float64)  # type: ignore[unknown-argument]
 
         # Iteration counter for callback
         iteration_count = [0]
@@ -162,7 +162,7 @@ class QuantumGraphBenchmark:
             # Solver breakdown or illegal input
             logging.warning(f"Solver breakdown or illegal input: info={info}")
 
-        return solution, iterations, residual_norm
+        return solution, int(iterations), float(residual_norm)
 
     def _preconditioned_solve(
         self,
@@ -177,7 +177,7 @@ class QuantumGraphBenchmark:
             x0 = np.zeros_like(b)
 
         # Create LinearOperator for the MFQuantumGraph
-        A_op = LinearOperator(A.shape, matvec=A.matvec, dtype=np.float64)
+        A_op = LinearOperator(shape=A.shape, matvec=A.matvec, dtype=np.float64)  # type: ignore[unknown-argument]
 
         # Use the preconditioner as a LinearOperator
         M = preconditioner.as_linear_operator()
@@ -226,7 +226,7 @@ class QuantumGraphBenchmark:
             # Solver breakdown or illegal input
             logging.warning(f"Solver breakdown or illegal input: info={info}")
 
-        return solution, iterations, residual_norm
+        return solution, int(iterations), float(residual_norm)
 
     def benchmark_single_run(
         self,
@@ -365,21 +365,21 @@ class QuantumGraphBenchmark:
             preconditioner_name=preconditioner_name,
             n_points=n_points,
             n_runs=n_runs,
-            mean_assembly_time=np.mean(assembly_times),
-            std_assembly_time=np.std(assembly_times, ddof=1)
+            mean_assembly_time=float(np.mean(assembly_times)),
+            std_assembly_time=float(np.std(assembly_times, ddof=1))
             if len(assembly_times) > 1
             else 0.0,
-            mean_solve_time=np.mean(solve_times),
-            std_solve_time=np.std(solve_times, ddof=1) if len(solve_times) > 1 else 0.0,
-            mean_total_time=np.mean(total_times),
-            std_total_time=np.std(total_times, ddof=1) if len(total_times) > 1 else 0.0,
-            mean_iterations=np.mean(iterations),
-            std_iterations=np.std(iterations, ddof=1) if len(iterations) > 1 else 0.0,
-            mean_residual_norm=np.mean(residual_norms) if residual_norms else np.inf,
-            std_residual_norm=np.std(residual_norms, ddof=1)
+            mean_solve_time=float(np.mean(solve_times)),
+            std_solve_time=float(np.std(solve_times, ddof=1)) if len(solve_times) > 1 else 0.0,
+            mean_total_time=float(np.mean(total_times)),
+            std_total_time=float(np.std(total_times, ddof=1)) if len(total_times) > 1 else 0.0,
+            mean_iterations=float(np.mean(iterations)),
+            std_iterations=float(np.std(iterations, ddof=1)) if len(iterations) > 1 else 0.0,
+            mean_residual_norm=float(np.mean(residual_norms)) if residual_norms else float(np.inf),
+            std_residual_norm=float(np.std(residual_norms, ddof=1))
             if len(residual_norms) > 1
             else 0.0,
-            success_rate=np.mean(successes),
+            success_rate=float(np.mean(successes)),
             graph_name=graph_name,
         )
 

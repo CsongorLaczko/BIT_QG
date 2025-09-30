@@ -24,7 +24,7 @@ class TestCoverageImprovements:
         with pytest.raises(
             ValueError, match="Quantum graph must have edges and vertex_weights"
         ):
-            precond.compute(InvalidGraph1())
+            precond.compute(InvalidGraph1())  # type: ignore[arg-type]
 
         # Test with object missing vertex_weights attribute
         class InvalidGraph2:
@@ -33,7 +33,7 @@ class TestCoverageImprovements:
         with pytest.raises(
             ValueError, match="Quantum graph must have edges and vertex_weights"
         ):
-            precond.compute(InvalidGraph2())
+            precond.compute(InvalidGraph2())  # type: ignore[arg-type]
 
     def test_neumann_neumann_empty_graph(self):
         """Test error handling for graph with empty edges or vertex_weights."""
@@ -47,7 +47,7 @@ class TestCoverageImprovements:
         with pytest.raises(
             ValueError, match="Quantum graph must have edges and vertex_weights"
         ):
-            precond.compute(EmptyEdgesGraph())
+            precond.compute(EmptyEdgesGraph())  # type: ignore[arg-type]
 
         # Test with empty vertex_weights
         def c_func(x):
@@ -66,7 +66,7 @@ class TestCoverageImprovements:
         with pytest.raises(
             ValueError, match="Quantum graph must have edges and vertex_weights"
         ):
-            precond.compute(EmptyWeightsGraph())
+            precond.compute(EmptyWeightsGraph())  # type: ignore[arg-type]
 
     def test_neumann_neumann_zero_vertex_weights(self):
         """Test handling of zero vertex weights."""
@@ -89,7 +89,7 @@ class TestCoverageImprovements:
                 self.vertex_weights = [0.0, 1.0]  # Zero weight for vertex 0
 
         precond = NeumannNeumannPreconditioner()
-        precond.compute(ZeroWeightGraph())
+        precond.compute(ZeroWeightGraph())  # type: ignore[arg-type]
 
         # Check that zero weight is handled (converted to 1.0)
         assert precond.vertex_weights[0] == 1.0
